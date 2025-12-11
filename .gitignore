@@ -1,0 +1,11 @@
+# Ignore Dependencies
+node_modules
+package-lock.json
+
+# Ignore Secrets and Keys
+secrets.json
+.env
+
+# Ignore System Files
+.DS_Store
+Thumbs.db

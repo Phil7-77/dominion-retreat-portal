@@ -1,0 +1,179 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary: #2563EB;
+  --bg-body: #F3F4F6;
+  --white: #FFFFFF;
+  --text-main: #1F2937;
+  --text-muted: #6B7280;
+  --border: #E5E7EB;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  margin: 0; padding: 0;
+  overflow-x: hidden;
+}
+
+/* ========================================= */
+/* 1. REGISTRATION PAGE (CENTERED)           */
+/* ========================================= */
+.container {
+  min-height: 100vh;
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 20px; box-sizing: border-box;
+}
+
+.card {
+  background: var(--white); padding: 2rem; border-radius: 16px;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border); width: 100%; box-sizing: border-box;
+}
+
+.registration-header { text-align: center; margin-bottom: 2rem; }
+.registration-header img { width: 120px; margin-bottom: 1rem; display: block; margin-left: auto; margin-right: auto;}
+.registration-header h1 { font-size: 1.6rem; color: #111827; margin: 0; letter-spacing: -0.5px; }
+
+.form-group { margin-bottom: 1.25rem; }
+label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; color: #374151; }
+.input-wrapper { position: relative; display: flex; align-items: center; }
+.icon { position: absolute; left: 14px; width: 20px; color: #9CA3AF; }
+
+input, select {
+  width: 100%; padding: 12px 12px 12px 44px;
+  border: 1px solid var(--border); border-radius: 8px; font-size: 1rem;
+  box-sizing: border-box; background: #fff; transition: all 0.2s;
+}
+input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
+
+.payment-info { background: #EFF6FF; border: 1px dashed #BFDBFE; padding: 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem; color: #1E3A8A; }
+.btn-submit { width: 100%; background: var(--primary); color: white; padding: 14px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1rem; transition: background 0.2s; }
+.success-message { text-align: center; padding: 1rem 0; }
+.success-icon { width: 80px; height: 80px; color: #10B981; margin: 0 auto 1.5rem; display: block; }
+
+
+/* ========================================= */
+/* 2. ADMIN DASHBOARD - SHARED STYLES        */
+/* ========================================= */
+.dashboard-container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+.dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.dashboard-header h1 { font-size: 1.6rem; color: var(--primary); margin: 0; font-weight: 800; }
+.btn-refresh { display: flex; align-items: center; gap: 6px; background: white; border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; color: #374151; }
+
+/* Badges & Icons */
+.row-index { background: #F3F4F6; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; border-radius: 50%; font-size: 0.75rem; font-weight: bold; color: #4B5563; }
+.badge-pill { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+.badge-pill.worker { background: #EEF2FF; color: #4F46E5; }
+.badge-pill.student { background: #FFF7ED; color: #C2410C; }
+.status-tag { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+.status-tag.confirmed { background: #D1FAE5; color: #065F46; }
+.status-tag.pending { background: #FEF3C7; color: #92400E; }
+.btn-view { display: inline-flex; align-items: center; gap: 4px; background: #EFF6FF; color: var(--primary); padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; }
+.btn-approve { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+.done-mark { color: #10B981; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 4px; }
+.icon-sm { width: 16px; height: 16px; }
+.icon-xs { width: 14px; height: 14px; }
+
+/* ========================================= */
+/* 3. DESKTOP LAYOUT (Grid Table)            */
+/* ========================================= */
+.desktop-header, .data-card {
+  display: grid;
+  /* 8 Columns */
+  grid-template-columns: 50px 2.5fr 1.5fr 1fr 1.5fr 0.8fr 1fr 1.2fr;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.desktop-header {
+  background: #F9FAFB;
+  border: 1px solid var(--border); border-bottom: none; border-radius: 12px 12px 0 0;
+  font-weight: 700; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;
+}
+
+.data-card { background: var(--white); border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+.data-card:last-child { border-bottom: 1px solid var(--border); border-radius: 0 0 12px 12px; }
+.data-card:hover { background: #F8FAFC; }
+
+.user-info { display: flex; flex-direction: column; }
+.location-text { font-size: 0.8rem; color: #6B7280; margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+.mobile-card-content { display: none; } /* Hide mobile content on desktop */
+
+
+/* ========================================= */
+/* 4. MOBILE LAYOUT (Contact Card)           */
+/* ========================================= */
+@media (max-width: 768px) {
+  
+  /* HIDE ALL DESKTOP ELEMENTS */
+  .desktop-header, .d-col { display: none !important; }
+  
+  /* SHOW MOBILE CONTENT */
+  .mobile-card-content { display: block; width: 100%; }
+
+  /* CARD CONTAINER (Flexbox, NOT Grid) */
+  .data-card {
+    display: flex; 
+    flex-direction: column;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px !important;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    gap: 0; /* Let inner sections handle gap */
+  }
+
+  /* --- HEADER: Name & ID --- */
+  .m-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+  }
+  .m-user strong { font-size: 1.25rem; color: #1F2937; display: block; margin-bottom: 4px; }
+  .m-id-badge {
+    background: #F3F4F6; color: #6B7280; font-weight: bold;
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
+  }
+
+  .m-divider { border: 0; border-top: 1px dashed #E5E7EB; margin: 0 0 15px 0; }
+
+  /* --- BODY: Details Stack --- */
+  .m-body { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;}
+
+  .mobile-row {
+    display: flex;
+    justify-content: space-between; /* Pushes Label Left, Value Right */
+    align-items: center;
+    font-size: 0.95rem;
+  }
+  
+  .m-label { font-weight: 600; color: #9CA3AF; font-size: 0.9rem; }
+  
+  .phone-display { font-weight: 600; color: #374151; display: flex; align-items: center; gap: 6px; }
+
+  /* --- FOOTER: Action --- */
+  .m-footer { margin-top: auto; }
+  .btn-approve.full-width { width: 100%; padding: 14px; font-size: 1rem; display: block; }
+  
+  .done-box {
+    background: #ECFDF5; color: #065F46;
+    padding: 12px; border-radius: 8px; text-align: center; font-weight: 600;
+    display: flex; justify-content: center; align-items: center; gap: 6px;
+  }
+}
+
+/* AUTH SCREEN */
+.auth-wrapper { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; box-sizing: border-box; }
+.auth-card { background: white; padding: 2.5rem 2rem; border-radius: 16px; text-align: center; width: 100%; max-width: 380px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+.icon-bg { width: 56px; height: 56px; background: #EFF6FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: var(--primary); }
+.auth-icon { width: 28px; }
+.auth-input { width: 100%; padding: 14px; margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 8px; text-align: center; font-size: 1.2rem; letter-spacing: 3px; font-weight: 600;}
