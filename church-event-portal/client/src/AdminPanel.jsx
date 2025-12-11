@@ -26,7 +26,7 @@ function AdminPanel() {
     setLoading(true);
     try {
       // Make sure this matches your Live Render URL
-      const res = await axios.get('https://dominion-backend.onrender.com/api/admin/data');
+     const res = await axios.get('https://dominion-backend-1t5m.onrender.com/api/admin/data');
       console.log("Data fetched:", res.data); // Console Log for debugging
       setAttendees(res.data.reverse());
     } catch (error) {
@@ -39,7 +39,7 @@ function AdminPanel() {
   const handleApprove = async (rowIndex) => {
     if(!window.confirm("Confirm payment for this person?")) return;
     try {
-      await axios.post('https://dominion-backend.onrender.com/api/admin/approve', { rowIndex });
+      await axios.post('https://dominion-backend-1t5m.onrender.com/api/admin/approve', { rowIndex });
       
       // Update UI immediately
       setAttendees(prev => prev.map(person => 

@@ -50,7 +50,8 @@ function Registration() {
       };
 
       // Ensure this matches your Vercel/Render URL
-      await axios.post('https://dominion-backend.onrender.com/api/register', finalData);
+      // Make sure it looks exactly like this:
+      await axios.post('https://dominion-backend-1t5m.onrender.com/api/register', finalData);;
       
       setStatus('success');
     } catch (error) {
