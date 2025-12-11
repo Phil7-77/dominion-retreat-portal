@@ -5,51 +5,54 @@ require('dotenv').config();
 
 const app = express();
 
-// --- 1. CORS CONFIGURATION (Trusting Vercel) ---
-app.use(cors({
-    origin: '*', // Allow all connections (Easiest fix for "CORS" error)
-    methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type']
-}));
+// --- 1. NUCLEAR CORS (Allow Everything) ---
+// This forces the server to accept requests from ANY website
+app.use(cors()); 
+app.options('*', cors()); // Handle preflight requests
 
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 const SPREADSHEET_ID = process.env.SHEET_ID;
 
-// --- 2. LOGGING (To debug in Render Dashboard) ---
-app.use((req, res, next) => {
-    console.log(`📩 Incoming Request: ${req.method} ${req.url}`);
-    next();
-});
+// --- 2. AUTHENTICATION SETUP ---
+const getAuth = () => {
+    // If running on Render (Cloud)
+    if (process.env.GOOGLE_CREDENTIALS) {
+        console.log("🔐 Loading Credentials from Environment Variable...");
+        return new google.auth.GoogleAuth({
+            credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS),
+            scopes: 'https://www.googleapis.com/auth/spreadsheets',
+        });
+    } 
+    // If running locally
+    else {
+        console.log("📂 Loading Credentials from secrets.json...");
+        return new google.auth.GoogleAuth({
+            keyFile: 'secrets.json',
+            scopes: 'https://www.googleapis.com/auth/spreadsheets',
+        });
+    }
+};
 
-// --- AUTHENTICATION ---
-let auth;
-if (process.env.GOOGLE_CREDENTIALS) {
-    auth = new google.auth.GoogleAuth({
-        credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS),
-        scopes: 'https://www.googleapis.com/auth/spreadsheets',
-    });
-} else {
-    auth = new google.auth.GoogleAuth({
-        keyFile: 'secrets.json',
-        scopes: 'https://www.googleapis.com/auth/spreadsheets',
-    });
-}
-
+const auth = getAuth();
 const sheets = google.sheets({ version: 'v4', auth });
 
-// --- 3. TEST ROUTE (To confirm server is awake) ---
+// --- 3. TEST ROUTE ---
 app.get('/', (req, res) => {
-    res.send('✅ Dominion Retreat Backend is ONLINE!');
+    res.send('Dominion Retreat Server Running');
 });
 
-// --- REGISTRATION ENDPOINT ---
+// --- REGISTRATION ---
 app.post('/api/register', async (req, res) => {
-    console.log("📝 processing registration...");
+    console.log("📩 New Registration Request received...");
     try {
         const { fullName, location, phone, ticketType, paymentScreenshot } = req.body;
         
+        // --- GOOGLE SHEETS CHECK ---
+        console.log("🔎 Connecting to Google Sheets...");
+        
+        // 1. Check for Duplicates
         let existingNames = [];
         try {
             const existingData = await sheets.spreadsheets.values.get({
@@ -59,15 +62,18 @@ app.post('/api/register', async (req, res) => {
             const rows = existingData.data.values || [];
             existingNames = rows.flat().map(name => name ? name.toLowerCase().trim() : "");
         } catch (err) {
-            console.log("⚠️ Sheet might be empty, continuing...");
+            console.error("⚠️ Error reading sheet (Check Sheet ID/Permissions):", err.message);
+            // We do NOT stop here, we assume it's empty or fresh and try to save anyway.
         }
 
         if (existingNames.includes(fullName.toLowerCase().trim())) {
-            console.log("❌ Duplicate found");
-            return res.status(409).json({ error: 'Already registered' });
+            console.log("❌ Duplicate Name Detected");
+            return res.status(409).json({ error: 'Member is already registered.' });
         }
 
+        // 2. Save Data
         const timestamp = new Date().toLocaleString();
+        console.log("📝 Saving to row...");
         
         await sheets.spreadsheets.values.append({
             spreadsheetId: SPREADSHEET_ID,
@@ -78,18 +84,18 @@ app.post('/api/register', async (req, res) => {
             }
         });
 
-        console.log("✅ Saved to Sheets");
+        console.log("✅ Successfully Saved!");
         res.status(200).json({ message: 'Success' });
 
     } catch (error) {
-        console.error('❌ Server Error:', error.message);
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error('❌ CRITICAL ERROR:', error.message);
+        // This log will show up in Render and tell us exactly what is wrong
+        res.status(500).json({ error: error.message });
     }
 });
 
-// --- ADMIN DATA ENDPOINT ---
+// --- ADMIN DATA ---
 app.get('/api/admin/data', async (req, res) => {
-    console.log("📂 Admin fetching data...");
     try {
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
@@ -100,25 +106,23 @@ app.get('/api/admin/data', async (req, res) => {
 
         const formattedData = rows.slice(1).map((row, index) => ({
             rowIndex: index + 2,
-            timestamp: row[0] || "",
-            fullName: row[1] || "Unknown",
-            phone: row[2] || "",
-            location: row[3] || "",
-            ticketType: row[4] || "Standard",
-            paymentScreenshot: row[5] || "",
+            timestamp: row[0],
+            fullName: row[1],
+            phone: row[2],
+            location: row[3],
+            ticketType: row[4],
+            paymentScreenshot: row[5],
             status: row[6] || 'Pending'
         }));
-
         res.json(formattedData);
     } catch (error) {
-        console.error("❌ Fetch Error:", error.message);
+        console.error("Admin Fetch Error:", error.message);
         res.status(500).json({ error: 'Failed to fetch data' });
     }
 });
 
-// --- ADMIN APPROVE ENDPOINT ---
+// --- ADMIN APPROVE ---
 app.post('/api/admin/approve', async (req, res) => {
-    console.log("✅ Approving user...");
     try {
         const { rowIndex } = req.body;
         await sheets.spreadsheets.values.update({
@@ -129,7 +133,6 @@ app.post('/api/admin/approve', async (req, res) => {
         });
         res.json({ message: 'Status Updated' });
     } catch (error) {
-        console.error("Approve Error:", error.message);
         res.status(500).json({ error: 'Failed to update status' });
     }
 });
