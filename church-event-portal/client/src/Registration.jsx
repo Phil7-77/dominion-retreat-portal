@@ -52,7 +52,7 @@ function Registration() {
         paymentScreenshot: imageUrl
       };
 
-      await axios.post('http://localhost:5000/api/register', finalData);
+      await axios.post('https://dominion-backend-lt5m.onrender.com/api/register', finalData);
       
       setStatus('success');
     } catch (error) {

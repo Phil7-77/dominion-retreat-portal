@@ -25,7 +25,7 @@ function AdminPanel() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('http://localhost:5000/api/admin/data');
+      const res = await axios.get('https://dominion-backend-lt5m.onrender.com/api/admin/data');
       setAttendees(res.data.reverse());
     } catch (error) {
       console.error("Error fetching data", error);
@@ -36,7 +36,7 @@ function AdminPanel() {
   const handleApprove = async (rowIndex) => {
     if(!window.confirm("Confirm payment for this person?")) return;
     try {
-      await axios.post('http://localhost:5000/api/admin/approve', { rowIndex });
+      await axios.post('https://dominion-backend-lt5m.onrender.com/api/admin/approve', { rowIndex });
       setAttendees(prev => prev.map(person => 
         person.rowIndex === rowIndex ? { ...person, status: 'Confirmed' } : person
       ));
