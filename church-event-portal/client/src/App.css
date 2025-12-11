@@ -18,12 +18,40 @@ body {
 }
 
 /* ========================================= */
-/* 1. REGISTRATION PAGE (WIDER GRID)         */
+/* 1. SHARED UTILITIES & BUTTONS             */
+/* ========================================= */
+/* This fixes the Admin Login Button */
+.btn-primary, .btn-submit {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-primary:hover, .btn-submit:hover { background: #1d4ed8; }
+.btn-primary:active { transform: scale(0.98); }
+
+.full-width { width: 100%; }
+
+/* Icons */
+.icon-sm { width: 16px; height: 16px; margin-right: 6px; }
+.icon-xs { width: 14px; height: 14px; }
+
+/* ========================================= */
+/* 2. REGISTRATION PAGE                      */
 /* ========================================= */
 .container {
   min-height: 100vh;
   width: 100%;
-  max-width: 800px; /* Increased width to accommodate 2 columns nicely */
+  max-width: 800px;
   margin-inline: auto;
   display: flex; flex-direction: column; justify-content: center;
   padding: 40px 20px; box-sizing: border-box;
@@ -38,17 +66,14 @@ body {
   width: 100%; box-sizing: border-box;
 }
 
-/* --- THE NEW GRID LAYOUT --- */
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Two equal columns */
-  gap: 20px; /* Space between columns */
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
   margin-bottom: 1.5rem;
 }
+.form-group { margin-bottom: 0; }
 
-.form-group { margin-bottom: 0; /* Reset margin because grid gap handles it */ }
-
-/* ... [Header, Inputs, Payment Info styles stay the same] ... */
 .registration-header { text-align: center; margin-bottom: 2rem; }
 .registration-header img { width: 130px; margin-bottom: 1.5rem; display: block; margin-left: auto; margin-right: auto;}
 .registration-header h1 { font-size: 1.8rem; color: #111827; margin: 0; letter-spacing: -0.5px; font-weight: 800; }
@@ -65,24 +90,74 @@ input, select {
 input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
 
 .payment-info { background: #EFF6FF; border: 1px dashed #BFDBFE; padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem; font-size: 1rem; color: #1E3A8A; }
-.btn-submit { width: 100%; background: var(--primary); color: white; padding: 16px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 1rem; transition: background 0.2s; }
-
-/* ... [Admin Dashboard styles remain unchanged] ... */
+.success-message { text-align: center; padding: 2rem 0; }
+.success-icon { width: 90px; height: 90px; color: #10B981; margin: 0 auto 1.5rem; display: block; }
+.subtitle { color: #6B7280; font-size: 1rem; margin-bottom: 2rem; line-height: 1.5; }
 
 /* ========================================= */
-/* MOBILE RESPONSIVE TWEAK                   */
+/* 3. ADMIN DASHBOARD STYLES                 */
+/* ========================================= */
+.dashboard-container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+.dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.dashboard-header h1 { font-size: 1.8rem; color: var(--primary); margin: 0; font-weight: 800; }
+.btn-refresh { display: flex; align-items: center; gap: 6px; background: white; border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; color: #374151; }
+
+/* ========================================= */
+/* 4. DESKTOP LAYOUT (The Grid Fix)          */
+/* ========================================= */
+.desktop-header, .data-card {
+  display: grid;
+  /* 8 COLUMNS: # | Name | Loc | Type | Phone | Proof | Status | Action */
+  grid-template-columns: 50px 2.5fr 1.5fr 1fr 1.5fr 0.8fr 1fr 1.2fr;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.desktop-header {
+  background: #F9FAFB;
+  border: 1px solid var(--border); border-bottom: none; border-radius: 12px 12px 0 0;
+  font-weight: 700; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;
+}
+
+.data-card { background: var(--white); border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+.data-card:last-child { border-bottom: 1px solid var(--border); border-radius: 0 0 12px 12px; }
+.data-card:hover { background: #F8FAFC; }
+
+/* Shared Component Styles */
+.row-index { background: #F3F4F6; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; border-radius: 50%; font-size: 0.75rem; font-weight: bold; color: #4B5563; }
+.user-info { display: flex; flex-direction: column; }
+.location-text { font-size: 0.8rem; color: #6B7280; margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+.badge-pill { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+.badge-pill.worker { background: #EEF2FF; color: #4F46E5; }
+.badge-pill.student { background: #FFF7ED; color: #C2410C; }
+.status-tag { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+.status-tag.confirmed { background: #D1FAE5; color: #065F46; }
+.status-tag.pending { background: #FEF3C7; color: #92400E; }
+.btn-view { display: inline-flex; align-items: center; gap: 4px; background: #EFF6FF; color: var(--primary); padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; }
+.btn-approve { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+.done-mark { color: #10B981; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 4px; }
+
+/* Hide mobile content on desktop */
+.mobile-card-content { display: none; }
+.d-none { display: none !important; }
+
+/* ========================================= */
+/* 5. MOBILE LAYOUT (Stack Fix)              */
 /* ========================================= */
 @media (max-width: 768px) {
-  /* On Mobile, snap back to 1 column */
-  .form-grid {
-    grid-template-columns: 1fr; 
-    gap: 15px;
-  }
+  .container { padding: 15px; max-width: 100%; }
   
-  .container { padding: 15px; max-width: 100%; } 
+  /* On mobile, collapse registration grid to 1 column */
+  .form-grid { grid-template-columns: 1fr; gap: 15px; }
+
+  /* Hide Desktop Table */
   .desktop-header, .d-col { display: none !important; }
+  
+  /* Show Mobile Content */
   .mobile-card-content { display: block; width: 100%; }
 
+  /* Switch Grid to Flex Column */
   .data-card {
     display: flex; flex-direction: column;
     background: white; border: 1px solid var(--border); border-radius: 16px !important;
@@ -100,12 +175,11 @@ input:focus, select:focus { border-color: var(--primary); outline: none; box-sha
   .phone-display { font-weight: 600; color: #374151; display: flex; align-items: center; gap: 6px; }
 
   .m-footer { margin-top: auto; }
-  .btn-approve.full-width { width: 100%; padding: 14px; font-size: 1rem; display: block; }
   .done-box { background: #ECFDF5; color: #065F46; padding: 12px; border-radius: 8px; text-align: center; font-weight: 600; display: flex; justify-content: center; align-items: center; gap: 6px; }
 }
 
 /* ========================================= */
-/* 5. ADMIN LOGIN (Styled)                   */
+/* 6. ADMIN LOGIN (Styled)                   */
 /* ========================================= */
 .auth-wrapper { 
   display: flex; justify-content: center; align-items: center; 
@@ -120,21 +194,7 @@ input:focus, select:focus { border-color: var(--primary); outline: none; box-sha
 .auth-input { 
   width: 100%; padding: 14px; margin-bottom: 1.5rem; 
   border: 1px solid var(--border); border-radius: 8px; 
-  text-align: center; font-size: 1.3rem; letter-spacing: 4px; font-weight: 700; color: #374151;
+  text-align: center; font-size: 1.3rem; letter-spacing: 4px; font-weight: 700; color: #374151; 
+  box-sizing: border-box; /* Fixes overflow */
 }
 .auth-input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
-
-.btn-primary { 
-  background: var(--primary); 
-  color: white; 
-  border: none; 
-  padding: 12px; 
-  border-radius: 8px; 
-  font-weight: 600; 
-  cursor: pointer; 
-  width: 100%; 
-  transition: background 0.2s; 
-}
-.btn-primary:hover {
-  background: #1d4ed8; /* Slightly darker blue on hover */
-}

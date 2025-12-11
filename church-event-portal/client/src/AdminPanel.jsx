@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css'; 
 import { ArrowPathIcon, LockClosedIcon, CheckBadgeIcon } from '@heroicons/react/24/solid';
@@ -6,7 +6,7 @@ import { DocumentMagnifyingGlassIcon, MapPinIcon, PhoneIcon } from '@heroicons/r
 
 function AdminPanel() {
   const [attendees, setAttendees] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Start false to show login first
   const [accessCode, setAccessCode] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -16,7 +16,7 @@ function AdminPanel() {
     e.preventDefault();
     if (accessCode === ADMIN_CODE) {
       setIsAuthenticated(true);
-      fetchData();
+      fetchData(); // Fetch immediately after login
     } else {
       alert("Wrong Access Code!");
     }
@@ -25,10 +25,13 @@ function AdminPanel() {
   const fetchData = async () => {
     setLoading(true);
     try {
+      // Make sure this matches your Live Render URL
       const res = await axios.get('https://dominion-backend.onrender.com/api/admin/data');
+      console.log("Data fetched:", res.data); // Console Log for debugging
       setAttendees(res.data.reverse());
     } catch (error) {
       console.error("Error fetching data", error);
+      alert("Could not load data. The server might be waking up. Try 'Refresh' in 30 seconds.");
     }
     setLoading(false);
   };
@@ -37,11 +40,13 @@ function AdminPanel() {
     if(!window.confirm("Confirm payment for this person?")) return;
     try {
       await axios.post('https://dominion-backend.onrender.com/api/admin/approve', { rowIndex });
+      
+      // Update UI immediately
       setAttendees(prev => prev.map(person => 
         person.rowIndex === rowIndex ? { ...person, status: 'Confirmed' } : person
       ));
     } catch (error) {
-      alert("Failed to update.");
+      alert("Failed to update status.");
     }
   };
 
@@ -49,9 +54,7 @@ function AdminPanel() {
     return (
       <div className="auth-wrapper">
         <div className="auth-card">
-          {/* UPDATED: Added Logo Here */}
           <img src="https://imgur.com/qyUvkiS.png" alt="Logo" className="auth-logo" />
-          
           <h2 style={{margin: '0 0 1.5rem 0', color: '#111827'}}>Admin Portal</h2>
           <form onSubmit={handleLogin}>
             <input 
@@ -78,9 +81,10 @@ function AdminPanel() {
       </div>
 
       {loading ? (
-        <p style={{textAlign:'center', color:'#6B7280'}}>Loading records...</p>
+        <p style={{textAlign:'center', color:'#6B7280', marginTop: '50px'}}>Loading records... (Server might be waking up)</p>
       ) : (
         <div className="data-container">
+          {/* DESKTOP HEADER */}
           <div className="desktop-header">
             <div>#</div>
             <div>Name</div>
@@ -95,7 +99,7 @@ function AdminPanel() {
           {attendees.map((person, index) => (
             <div className="data-card" key={person.rowIndex}>
               
-              {/* DESKTOP */}
+              {/* === DESKTOP COLUMNS === */}
               <div className="d-col d-id"><span className="row-index">{index + 1}</span></div>
               <div className="d-col d-name">
                  <div className="user-info"><strong>{person.fullName}</strong></div>
@@ -119,7 +123,7 @@ function AdminPanel() {
                 )}
               </div>
 
-              {/* MOBILE */}
+              {/* === MOBILE CARD CONTENT === */}
               <div className="mobile-card-content">
                 <div className="m-header">
                   <div className="m-user">
@@ -162,7 +166,12 @@ function AdminPanel() {
 
             </div>
           ))}
-          {attendees.length === 0 && <p className="empty-msg">No data found.</p>}
+          
+          {!loading && attendees.length === 0 && (
+            <p className="empty-msg" style={{textAlign:'center', marginTop:'30px', color: '#888'}}>
+              No registrations found.
+            </p>
+          )}
         </div>
       )}
     </div>

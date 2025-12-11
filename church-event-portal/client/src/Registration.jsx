@@ -85,6 +85,8 @@ function Registration() {
        <div className="registration-header">
         <img src="https://imgur.com/qyUvkiS.png" alt="Church Logo"/>
         <h1>End of Year Retreat 2025</h1>
+        <p>Register to secure your seat</p>
+        
       </div>
       
       <div className="card">
