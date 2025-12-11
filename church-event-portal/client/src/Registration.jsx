@@ -3,7 +3,6 @@ import axios from 'axios';
 import './App.css';
 import { UserIcon, MapPinIcon, PhoneIcon, CameraIcon, CheckCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
-// --- CONFIGURATION ---
 const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dcih4tkwz/image/upload"; 
 const UPLOAD_PRESET = "end_of_year_retreat";
 
@@ -16,7 +15,7 @@ function Registration() {
     paymentScreenshot: null 
   });
   
-  const [status, setStatus] = useState('idle'); // idle | submitting | success | error | duplicate
+  const [status, setStatus] = useState('idle');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -33,7 +32,6 @@ function Registration() {
     try {
       let imageUrl = "";
 
-      // 1. Upload to Cloudinary
       if (formData.paymentScreenshot) {
         const imageFormData = new FormData();
         imageFormData.append('file', formData.paymentScreenshot);
@@ -43,7 +41,6 @@ function Registration() {
         imageUrl = cloudinaryRes.data.secure_url;
       }
 
-      // 2. Send Data to Backend
       const finalData = {
         fullName: formData.fullName,
         location: formData.location,
@@ -52,13 +49,12 @@ function Registration() {
         paymentScreenshot: imageUrl
       };
 
-      await axios.post('https://dominion-backend-lt5m.onrender.com/api/register', finalData);
+      // Ensure this matches your Vercel/Render URL
+      await axios.post('https://dominion-backend.onrender.com/api/register', finalData);
       
       setStatus('success');
     } catch (error) {
       console.error(error);
-      
-      // CHECK FOR DUPLICATE ERROR (409)
       if (error.response && error.response.status === 409) {
         setStatus('duplicate');
       } else {
@@ -69,7 +65,6 @@ function Registration() {
 
   const price = formData.ticketType === 'Worker' ? '150.00' : '100.00';
 
-  // --- SUCCESS VIEW ---
   if (status === 'success') {
     return (
       <div className="container">
@@ -77,7 +72,7 @@ function Registration() {
           <div className="success-message">
             <CheckCircleIcon className="success-icon" />
             <h1>Registration Complete!</h1>
-            <p className="subtitle">See you at the <strong>End of Year Retreat</strong>!</p>
+            <p className="subtitle">See you at <strong>the End of Year Retreat</strong>!</p>
             <button className="btn-submit" onClick={() => window.location.reload()}>Register Another Person</button>
           </div>
         </div>
@@ -85,7 +80,6 @@ function Registration() {
     );
   }
 
-  // --- FORM VIEW ---
   return (
     <div className="container">
        <div className="registration-header">
@@ -96,39 +90,49 @@ function Registration() {
       <div className="card">
         <form onSubmit={handleSubmit}>
           
-          <div className="form-group">
-            <label>Full Name</label>
-            <div className="input-wrapper">
-              <UserIcon className="icon" />
-              <input type="text" name="fullName" required value={formData.fullName} onChange={handleChange} placeholder="John Doe"/>
+          {/* --- NEW: 2-COLUMN GRID WRAPPER --- */}
+          <div className="form-grid">
+            
+            {/* Row 1, Col 1 */}
+            <div className="form-group">
+              <label>Full Name</label>
+              <div className="input-wrapper">
+                <UserIcon className="icon" />
+                <input type="text" name="fullName" required value={formData.fullName} onChange={handleChange} placeholder="John Doe"/>
+              </div>
             </div>
-          </div>
 
-          <div className="form-group">
-            <label>Phone Number</label>
-            <div className="input-wrapper">
-              <PhoneIcon className="icon" />
-              <input type="tel" name="phone" required value={formData.phone} onChange={handleChange} placeholder="020 123 4567"/>
+            {/* Row 1, Col 2 */}
+            <div className="form-group">
+              <label>Phone Number</label>
+              <div className="input-wrapper">
+                <PhoneIcon className="icon" />
+                <input type="tel" name="phone" required value={formData.phone} onChange={handleChange} placeholder="020 123 4567"/>
+              </div>
             </div>
-          </div>
 
-          <div className="form-group">
-            <label>Location / Branch</label>
-            <div className="input-wrapper">
-              <MapPinIcon className="icon" />
-              <input type="text" name="location" required value={formData.location} onChange={handleChange} placeholder="Kumasi"/>
+            {/* Row 2, Col 1 */}
+            <div className="form-group">
+              <label>Location / Branch</label>
+              <div className="input-wrapper">
+                <MapPinIcon className="icon" />
+                <input type="text" name="location" required value={formData.location} onChange={handleChange} placeholder="Kumasi"/>
+              </div>
             </div>
-          </div>
 
-           <div className="form-group">
-            <label>Registration Type</label>
-            <div className="input-wrapper">
-              <select name="ticketType" value={formData.ticketType} onChange={handleChange}>
-                <option value="Worker">Worker (GH₵ 150.00)</option>
-                <option value="Student">Student (GH₵ 100.00)</option>
-              </select>
+            {/* Row 2, Col 2 */}
+             <div className="form-group">
+              <label>Registering As</label>
+              <div className="input-wrapper">
+                <select name="ticketType" value={formData.ticketType} onChange={handleChange}>
+                  <option value="Worker">Worker (GH₵ 150.00)</option>
+                  <option value="Student">Student (GH₵ 100.00)</option>
+                </select>
+              </div>
             </div>
+
           </div>
+          {/* --- END GRID WRAPPER --- */}
 
           <div className="payment-info">
             <p style={{margin: '0 0 0.5rem 0', fontSize: '1.1rem'}}><strong>Amount Due: GH₵ {price}</strong></p>
@@ -144,34 +148,15 @@ function Registration() {
             {status === 'submitting' && <small style={{color: 'blue'}}>Uploading image... please wait.</small>}
           </div>
 
-          {/* DUPLICATE ERROR MESSAGE */}
           {status === 'duplicate' && (
-            <div style={{
-              background: '#FEF2F2', 
-              color: '#B91C1C', 
-              padding: '10px', 
-              borderRadius: '8px', 
-              marginBottom: '1rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              fontSize: '0.9rem'
-            }}>
+            <div style={{ background: '#FEF2F2', color: '#B91C1C', padding: '10px', borderRadius: '8px', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
               <ExclamationTriangleIcon style={{width:'20px'}}/>
-              <span>This name is already registered. Please use a different name.</span>
+              <span>Member is already registered.</span>
             </div>
           )}
 
-          {/* GENERAL ERROR MESSAGE */}
           {status === 'error' && (
-             <div style={{
-              background: '#FEF2F2', 
-              color: '#B91C1C', 
-              padding: '10px', 
-              borderRadius: '8px', 
-              marginBottom: '1rem',
-              textAlign: 'center'
-            }}>
+             <div style={{ background: '#FEF2F2', color: '#B91C1C', padding: '10px', borderRadius: '8px', marginBottom: '1rem', textAlign: 'center' }}>
               Registration failed. Please check your connection.
             </div>
           )}

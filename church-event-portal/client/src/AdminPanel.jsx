@@ -25,7 +25,7 @@ function AdminPanel() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('https://dominion-backend-lt5m.onrender.com/api/admin/data');
+      const res = await axios.get('https://dominion-backend.onrender.com/api/admin/data');
       setAttendees(res.data.reverse());
     } catch (error) {
       console.error("Error fetching data", error);
@@ -36,7 +36,7 @@ function AdminPanel() {
   const handleApprove = async (rowIndex) => {
     if(!window.confirm("Confirm payment for this person?")) return;
     try {
-      await axios.post('https://dominion-backend-lt5m.onrender.com/api/admin/approve', { rowIndex });
+      await axios.post('https://dominion-backend.onrender.com/api/admin/approve', { rowIndex });
       setAttendees(prev => prev.map(person => 
         person.rowIndex === rowIndex ? { ...person, status: 'Confirmed' } : person
       ));
@@ -49,8 +49,10 @@ function AdminPanel() {
     return (
       <div className="auth-wrapper">
         <div className="auth-card">
-          <div className="icon-bg"><LockClosedIcon className="auth-icon"/></div>
-          <h2>Admin Portal</h2>
+          {/* UPDATED: Added Logo Here */}
+          <img src="https://imgur.com/qyUvkiS.png" alt="Logo" className="auth-logo" />
+          
+          <h2 style={{margin: '0 0 1.5rem 0', color: '#111827'}}>Admin Portal</h2>
           <form onSubmit={handleLogin}>
             <input 
               type="password" 
@@ -79,7 +81,6 @@ function AdminPanel() {
         <p style={{textAlign:'center', color:'#6B7280'}}>Loading records...</p>
       ) : (
         <div className="data-container">
-          {/* --- DESKTOP TABLE HEADERS --- */}
           <div className="desktop-header">
             <div>#</div>
             <div>Name</div>
@@ -91,22 +92,14 @@ function AdminPanel() {
             <div style={{textAlign:'right'}}>Action</div>
           </div>
 
-          {/* --- DATA CARDS --- */}
           {attendees.map((person, index) => (
             <div className="data-card" key={person.rowIndex}>
               
-              {/* ============================================= */}
-              {/* DESKTOP LAYOUT (Grid Items)                   */}
-              {/* ============================================= */}
+              {/* DESKTOP */}
               <div className="d-col d-id"><span className="row-index">{index + 1}</span></div>
-              
               <div className="d-col d-name">
-                 <div className="user-info">
-                  <strong>{person.fullName}</strong>
-                  {/* REMOVED DUPLICATE LOCATION HERE - CLEANER LOOK! */}
-                </div>
+                 <div className="user-info"><strong>{person.fullName}</strong></div>
               </div>
-              
               <div className="d-col d-loc">{person.location}</div>
               <div className="d-col d-type"><span className={`badge-pill ${person.ticketType.toLowerCase()}`}>{person.ticketType}</span></div>
               <div className="d-col d-phone">{person.phone}</div>
@@ -126,38 +119,25 @@ function AdminPanel() {
                 )}
               </div>
 
-
-              {/* ============================================= */}
-              {/* MOBILE LAYOUT (The Clean Card)                */}
-              {/* We KEEP the location here for the card look   */}
-              {/* ============================================= */}
+              {/* MOBILE */}
               <div className="mobile-card-content">
-                
-                {/* Header: Name + ID */}
                 <div className="m-header">
                   <div className="m-user">
                     <strong>{person.fullName}</strong>
-                    {/* Location stays here for Mobile! */}
                     <span className="location-text"><MapPinIcon className="icon-xs"/> {person.location}</span>
                   </div>
                   <div className="m-id-badge">{index + 1}</div>
                 </div>
-
                 <hr className="m-divider"/>
-
-                {/* Body: Details Stack */}
                 <div className="m-body">
-                  
                   <div className="mobile-row">
                     <span className="m-label">Type</span>
                     <span className={`badge-pill ${person.ticketType.toLowerCase()}`}>{person.ticketType}</span>
                   </div>
-
                   <div className="mobile-row">
                     <span className="m-label">Phone</span>
                     <span className="phone-display"><PhoneIcon className="icon-xs"/> {person.phone}</span>
                   </div>
-
                   <div className="mobile-row">
                     <span className="m-label">Proof</span>
                      {person.paymentScreenshot ? (
@@ -166,28 +146,19 @@ function AdminPanel() {
                       </a>
                     ) : <span>-</span>}
                   </div>
-
                   <div className="mobile-row">
                     <span className="m-label">Status</span>
                     <span className={`status-tag ${person.status.toLowerCase()}`}>{person.status}</span>
                   </div>
                 </div>
-
-                {/* Footer: Big Button */}
                 <div className="m-footer">
                    {person.status === 'Confirmed' ? (
-                     <div className="done-box">
-                       <CheckBadgeIcon className="icon-sm"/> Payment Confirmed
-                     </div>
+                     <div className="done-box"><CheckBadgeIcon className="icon-sm"/> Payment Confirmed</div>
                   ) : (
-                    <button onClick={() => handleApprove(person.rowIndex)} className="btn-approve full-width">
-                      Approve Payment
-                    </button>
+                    <button onClick={() => handleApprove(person.rowIndex)} className="btn-approve full-width">Approve Payment</button>
                   )}
                 </div>
-
               </div>
-              {/* End Mobile Content */}
 
             </div>
           ))}
