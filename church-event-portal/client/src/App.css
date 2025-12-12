@@ -20,7 +20,8 @@ body {
 /* ========================================= */
 /* 1. SHARED UTILITIES & BUTTONS             */
 /* ========================================= */
-/* 1. Shared Styles for both buttons */
+
+/* 1. Base styles for BOTH buttons */
 .btn-primary, .btn-submit {
   background: var(--primary);
   color: white;
@@ -36,20 +37,19 @@ body {
   align-items: center;
 }
 
-/* 2. Specific Override for the Registration Button */
-/* This MUST be separate and below the first rule */
+/* 2. Specific Override for REGISTRATION Button (Centered, 90%) */
 .btn-submit {
-  width: 90% !important;       /* 90% width for mobile */
-  max-width: 350px;            /* Cap width for desktop */
-  display: block !important;   /* Critical: Change to block so margin:auto works */
-  margin: 2rem auto 0 auto !important; /* Centers the block */
+  width: 90% !important;       
+  max-width: 350px;            
+  display: block !important;   
+  margin: 2rem auto 0 auto !important; 
   box-sizing: border-box;
 }
 
-.btn-primary:hover, .btn-submit:hover { background: #1d4ed8; }
-.btn-primary:active { transform: scale(0.98); }
-
-.full-width { width: 100%; }
+/* 3. Utility for ADMIN LOGIN Button (Full Width) */
+.full-width { 
+  width: 100%; 
+}
 
 /* Icons */
 .icon-sm { width: 16px; height: 16px; margin-right: 6px; }
