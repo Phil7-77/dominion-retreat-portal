@@ -21,7 +21,7 @@ body {
 /* 1. SHARED UTILITIES & BUTTONS             */
 /* ========================================= */
 
-/* 1. Base styles for BOTH buttons */
+/* Base Style for ALL Buttons */
 .btn-primary, .btn-submit {
   background: var(--primary);
   color: white;
@@ -32,21 +32,31 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
-  display: inline-flex;
-  justify-content: center;
+  
+  /* Reset layout behavior */
+  display: flex;             /* Use Flexbox for internal alignment */
+  justify-content: center;   /* Center text inside */
   align-items: center;
+  box-sizing: border-box;    /* Ensure padding doesn't increase width */
 }
 
-/* 2. Specific Override for REGISTRATION Button (Centered, 90%) */
+/* 2. REGISTRATION BUTTON (The Fix) */
 .btn-submit {
-  width: 90% !important;       
-  max-width: 350px;            
-  display: block !important;   
-  margin: 2rem auto 0 auto !important; 
-  box-sizing: border-box;
+  /* Force it to be its own line */
+  display: flex !important;
+  
+  /* Exact Widths */
+  width: 90% !important;
+  max-width: 350px !important;
+  
+  /* The Centering Magic */
+  margin-top: 2rem !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-bottom: 0 !important;
 }
 
-/* 3. Utility for ADMIN LOGIN Button (Full Width) */
+/* 3. ADMIN BUTTON */
 .full-width { 
   width: 100%; 
 }
