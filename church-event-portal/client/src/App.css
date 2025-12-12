@@ -21,7 +21,7 @@ body {
 /* 1. SHARED UTILITIES & BUTTONS             */
 /* ========================================= */
 
-/* Base Style for ALL Buttons */
+/* 1. Base Styles for ALL Buttons */
 .btn-primary, .btn-submit {
   background: var(--primary);
   color: white;
@@ -33,30 +33,24 @@ body {
   cursor: pointer;
   transition: background 0.2s;
   
-  /* Reset layout behavior */
-  display: flex;             /* Use Flexbox for internal alignment */
-  justify-content: center;   /* Center text inside */
+  /* Layout Safety */
+  display: flex;             
+  justify-content: center;   
   align-items: center;
-  box-sizing: border-box;    /* Ensure padding doesn't increase width */
+  box-sizing: border-box;    
 }
 
 /* 2. REGISTRATION BUTTON (The Fix) */
 .btn-submit {
-  /* Force it to be its own line */
-  display: flex !important;
+  /* On Mobile: Fill the container exactly like the inputs */
+  width: 100% !important;
   
-  /* Exact Widths */
-  width: 90% !important;
+  /* On Desktop: Stop growing at 350px and center itself */
   max-width: 350px !important;
-  
-  /* The Centering Magic */
-  margin-top: 2rem !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  margin-bottom: 0 !important;
+  margin: 2rem auto 0 auto !important; 
 }
 
-/* 3. ADMIN BUTTON */
+/* 3. ADMIN BUTTON (Full Width) */
 .full-width { 
   width: 100%; 
 }
