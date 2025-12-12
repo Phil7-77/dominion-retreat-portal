@@ -27,10 +27,14 @@ body {
   border: none;
   padding: 14px;
   border-radius: 8px;
-  width: 100% !important;      /* Start full width on small screens */
-  max-width: 350px;            /* Stop stretching at 350px (Matches WhatsApp button) */
-  display: block;              /* Allows centering */
-  margin: 2rem auto 0 auto;
+ /* --- CENTER REGISTRATION BUTTON --- */
+.btn-submit {
+  width: 90% !important;       /* 90% width ensures visible margins on both sides */
+  max-width: 350px;            /* limit width on big screens */
+  display: block;              /* allows centering */
+  margin: 2rem auto 0 auto;    /* Top: 2rem, Left/Right: Auto (Perfect Center) */
+  box-sizing: border-box;      /* Ensures padding doesn't mess up width */
+}
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
