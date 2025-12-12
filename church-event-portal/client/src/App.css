@@ -23,6 +23,7 @@ body {
 /* This fixes the Admin Login Button */
 .btn-primary, .btn-submit {
   background: var(--primary);
+  margin: 0 auto;
   color: white;
   border: none;
   padding: 14px;
