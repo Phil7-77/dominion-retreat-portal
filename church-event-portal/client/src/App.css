@@ -23,11 +23,14 @@ body {
 /* This fixes the Admin Login Button */
 .btn-primary, .btn-submit {
   background: var(--primary);
-  margin: 0 auto;
   color: white;
   border: none;
   padding: 14px;
   border-radius: 8px;
+  width: 100% !important;      /* Start full width on small screens */
+  max-width: 350px;            /* Stop stretching at 350px (Matches WhatsApp button) */
+  display: block;              /* Allows centering */
+  margin: 2rem auto 0 auto;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
