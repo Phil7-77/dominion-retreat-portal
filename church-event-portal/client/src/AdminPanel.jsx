@@ -29,11 +29,7 @@ function AdminPanel() {
     setLoading(true);
     try {
       const res = await axios.get('https://dominion-backend-lt5m.onrender.com/api/admin/data');
-      
-      // CHANGE HERE: Removed .reverse() so the list is Chronological
-      // Top of list = First person who registered (#1)
       setAttendees(res.data); 
-      
     } catch (error) {
       console.error("Error fetching data", error);
     }
@@ -52,11 +48,9 @@ function AdminPanel() {
     }
   };
 
-  // COUNTS
   const confirmedCount = attendees.filter(p => p.status === 'Confirmed').length;
   const pendingCount = attendees.filter(p => p.status === 'Pending').length;
 
-  // FILTERING
   const filteredAttendees = attendees.filter(person => 
     person.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     person.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -127,7 +121,7 @@ function AdminPanel() {
           </div>
 
           <div className="desktop-header">
-            <div>#</div>
+            {/* REMOVED # COLUMN HERE */}
             <div>Name</div>
             <div>Location</div>
             <div>Type</div>
@@ -137,12 +131,10 @@ function AdminPanel() {
             <div style={{textAlign:'right'}}>Action</div>
           </div>
 
-          {filteredAttendees.map((person, index) => (
+          {filteredAttendees.map((person) => (
             <div className="data-card" key={person.rowIndex}>
               
-              {/* DESKTOP ROW */}
-              <div className="d-col d-id"><span className="row-index">{index + 1}</span></div> 
-              
+              {/* DESKTOP ROW - REMOVED ID COLUMN */}
               <div className="d-col d-name"><div className="user-info"><strong>{person.fullName}</strong></div></div>
               <div className="d-col d-loc">{person.location}</div>
               <div className="d-col d-type"><span className={`badge-pill ${person.ticketType.toLowerCase()}`}>{person.ticketType}</span></div>
@@ -158,7 +150,7 @@ function AdminPanel() {
                     <strong>{person.fullName}</strong>
                     <span className="location-text"><MapPinIcon className="icon-xs"/> {person.location}</span>
                   </div>
-                  <div className="m-id-badge">{index + 1}</div>
+                  {/* REMOVED ID BADGE HERE */}
                 </div>
                 <hr className="m-divider"/>
                 <div className="m-body">

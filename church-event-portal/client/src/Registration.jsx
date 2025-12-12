@@ -66,15 +66,34 @@ function Registration() {
 
   const price = formData.ticketType === 'Worker' ? '150.00' : '100.00';
 
-  if (status === 'success') {
+ if (status === 'success') {
     return (
       <div className="container">
         <div className="card">
           <div className="success-message">
             <CheckCircleIcon className="success-icon" />
             <h1>Registration Complete!</h1>
-            <p className="subtitle">See you at <strong>the End of Year Retreat</strong>!</p>
-            <button className="btn-submit" onClick={() => window.location.reload()}>Register Another Person</button>
+            
+            {/* UPDATED: WhatsApp Link Button */}
+            <p style={{marginBottom: '1.5rem', color: '#6B7280'}}>
+              Thank you for registering. Please join the platform for updates.
+            </p>
+            
+            <a 
+              href="https://chat.whatsapp.com/FAz7Wb4gmNT5m0DjaIrGsi?mode=hqrt1" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="btn-whatsapp"
+            >
+              Click to join our WhatsApp Platform
+            </a>
+
+            <div style={{marginTop: '2rem', borderTop: '1px solid #E5E7EB', paddingTop: '1.5rem'}}>
+               <button className="btn-secondary" onClick={() => window.location.reload()}>
+                 Register Another Person
+               </button>
+            </div>
+
           </div>
         </div>
       </div>

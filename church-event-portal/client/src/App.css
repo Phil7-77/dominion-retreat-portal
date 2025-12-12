@@ -108,7 +108,7 @@ input:focus, select:focus { border-color: var(--primary); outline: none; box-sha
 .desktop-header, .data-card {
   display: grid;
   /* 8 COLUMNS: # | Name | Loc | Type | Phone | Proof | Status | Action */
-  grid-template-columns: 50px 2.5fr 1.5fr 1fr 1.5fr 0.8fr 1fr 1.2fr;
+  grid-template-columns: 2.5fr 1.5fr 1fr 1.5fr 0.8fr 1fr 1.2fr;
   align-items: center;
   padding: 16px 24px;
   border-bottom: 1px solid var(--border);
@@ -276,4 +276,62 @@ input:focus, select:focus { border-color: var(--primary); outline: none; box-sha
   .toolbar { flex-direction: column-reverse; }
   .search-wrapper { max-width: 100%; }
   .btn-refresh { width: 100%; justify-content: center; }
+}
+
+/* ========================================= */
+/* 7. WHATSAPP & SUCCESS SCREEN STYLES       */
+/* ========================================= */
+
+.btn-whatsapp {
+  display: block;
+  width: 100%;             /* Start full width on tiny phones */
+  max-width: 350px;        /* Stop stretching on bigger screens */
+  margin: 0 auto 1rem auto; /* Center it horizontally */
+  background-color: #25D366; 
+  color: white;
+  text-align: center;
+  padding: 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: background 0.2s;
+  box-shadow: 0 4px 6px rgba(37, 211, 102, 0.2);
+  box-sizing: border-box;
+}
+
+.btn-whatsapp:hover {
+  background-color: #1b8b44ff;
+  transform: translateY(-2px);
+}
+
+/* Style for the "Register Another" button to make it less prominent */
+.btn-secondary {
+  display: block;
+  width: 100%;
+  max-width: 350px;        /* Match the width of the WhatsApp button */
+  margin: 0 auto;          /* Center it */
+  background: white;
+  color: #0255fdff;
+  border: 1px solid #D1D5DB;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.btn-secondary:hover {
+  background: #F9FAFB;
+  border-color: #9CA3AF;
+  color: #374151;
+}
+
+/* --- CENTER REGISTRATION BUTTON --- */
+.btn-submit {
+  width: auto !important;      /* Stop it from being full width */
+  min-width: 280px;            /* Give it a nice standard size */
+  display: block;              /* Allows centering */
+  margin: 2rem auto 0 auto;    /* Top margin 2rem, Left/Right Auto (Centers it) */
 }
