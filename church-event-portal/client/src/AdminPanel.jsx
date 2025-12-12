@@ -10,7 +10,6 @@ function AdminPanel() {
   const [accessCode, setAccessCode] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
-  // NEW STATE VARIABLES
   const [showPassword, setShowPassword] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -30,7 +29,11 @@ function AdminPanel() {
     setLoading(true);
     try {
       const res = await axios.get('https://dominion-backend-lt5m.onrender.com/api/admin/data');
-      setAttendees(res.data.reverse());
+      
+      // CHANGE HERE: Removed .reverse() so the list is Chronological
+      // Top of list = First person who registered (#1)
+      setAttendees(res.data); 
+      
     } catch (error) {
       console.error("Error fetching data", error);
     }
@@ -49,11 +52,11 @@ function AdminPanel() {
     }
   };
 
-  // --- NEW LOGIC: COUNTS ---
+  // COUNTS
   const confirmedCount = attendees.filter(p => p.status === 'Confirmed').length;
   const pendingCount = attendees.filter(p => p.status === 'Pending').length;
 
-  // --- NEW LOGIC: FILTERING ---
+  // FILTERING
   const filteredAttendees = attendees.filter(person => 
     person.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     person.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -67,8 +70,6 @@ function AdminPanel() {
           <img src="https://imgur.com/qyUvkiS.png" alt="Logo" className="auth-logo" />
           <h2 style={{margin: '0 0 1.5rem 0', color: '#111827'}}>Admin Portal</h2>
           <form onSubmit={handleLogin}>
-            
-            {/* UPDATED PASSWORD INPUT WITH EYE ICON */}
             <div className="input-wrapper" style={{marginBottom: '1.5rem'}}>
               <input 
                 type={showPassword ? "text" : "password"} 
@@ -76,16 +77,12 @@ function AdminPanel() {
                 value={accessCode}
                 onChange={(e) => setAccessCode(e.target.value)}
                 className="auth-input"
-                style={{marginBottom: 0}} // Override margin for wrapper
+                style={{marginBottom: 0}}
               />
-              <div 
-                className="password-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-              >
+              <div className="password-toggle" onClick={() => setShowPassword(!showPassword)}>
                 {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
               </div>
             </div>
-
             <button className="btn-primary full-width">Enter Dashboard</button>
           </form>
         </div>
@@ -97,7 +94,6 @@ function AdminPanel() {
     <div className="dashboard-container">
       <div className="dashboard-header">
         <h1>Admin Dashboard</h1>
-        {/* We moved the refresh button down to the toolbar for better mobile layout */}
       </div>
 
       {loading ? (
@@ -105,7 +101,6 @@ function AdminPanel() {
       ) : (
         <div className="data-container">
           
-          {/* --- NEW: STATS GRID --- */}
           <div className="stats-grid">
             <div className="stat-card confirmed">
               <div>
@@ -123,24 +118,14 @@ function AdminPanel() {
             </div>
           </div>
 
-          {/* --- NEW: TOOLBAR (SEARCH + REFRESH) --- */}
           <div className="toolbar">
             <div className="search-wrapper">
               <MagnifyingGlassIcon className="search-icon"/>
-              <input 
-                type="text" 
-                placeholder="Search by name, phone, location..." 
-                className="search-input"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+              <input type="text" placeholder="Search..." className="search-input" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
             </div>
-            <button onClick={fetchData} className="btn-refresh">
-              <ArrowPathIcon className="icon-sm"/> Refresh List
-            </button>
+            <button onClick={fetchData} className="btn-refresh"><ArrowPathIcon className="icon-sm"/> Refresh List</button>
           </div>
 
-          {/* DESKTOP HEADER */}
           <div className="desktop-header">
             <div>#</div>
             <div>Name</div>
@@ -152,12 +137,11 @@ function AdminPanel() {
             <div style={{textAlign:'right'}}>Action</div>
           </div>
 
-          {/* RENDER FILTERED LIST INSTEAD OF FULL LIST */}
           {filteredAttendees.map((person, index) => (
             <div className="data-card" key={person.rowIndex}>
+              
               {/* DESKTOP ROW */}
-              <div className="d-col d-id"><span className="row-index">{attendees.length - index}</span></div> 
-              {/* Note: Index calculation adjusted since we reversed the data array */}
+              <div className="d-col d-id"><span className="row-index">{index + 1}</span></div> 
               
               <div className="d-col d-name"><div className="user-info"><strong>{person.fullName}</strong></div></div>
               <div className="d-col d-loc">{person.location}</div>
@@ -174,7 +158,7 @@ function AdminPanel() {
                     <strong>{person.fullName}</strong>
                     <span className="location-text"><MapPinIcon className="icon-xs"/> {person.location}</span>
                   </div>
-                  <div className="m-id-badge">{attendees.length - index}</div>
+                  <div className="m-id-badge">{index + 1}</div>
                 </div>
                 <hr className="m-divider"/>
                 <div className="m-body">
@@ -190,7 +174,7 @@ function AdminPanel() {
 
           {!loading && filteredAttendees.length === 0 && (
             <p style={{textAlign:'center', marginTop:'30px', color: '#9CA3AF'}}>
-              {searchTerm ? "No results found for your search." : "No registrations found."}
+              {searchTerm ? "No results found." : "No registrations found."}
             </p>
           )}
         </div>
