@@ -29,7 +29,7 @@ function AdminPanel() {
     setLoading(true);
     try {
       const res = await axios.get('https://dominion-backend-lt5m.onrender.com/api/admin/data');
-      setAttendees(res.data); 
+      setAttendees(res.data.reverse()); 
     } catch (error) {
       console.error("Error fetching data", error);
     }
