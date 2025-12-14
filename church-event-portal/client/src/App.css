@@ -435,7 +435,7 @@ input:focus, select:focus { border-color: var(--primary); outline: none; box-sha
   .desktop-header, .data-card {
     display: grid !important;
     /* Adjusted ratios: Phone and Status get enough space */
-    grid-template-columns: 2.2fr 1.5fr 1.2fr 1.5fr 1.2fr !important;
+    grid-template-columns: 2.2fr 1.5fr 1.2fr 1fr 1fr !important;
     gap: 10px; 
     align-items: center; 
     /* Ensures the whole table is centered on the paper with even margins */
