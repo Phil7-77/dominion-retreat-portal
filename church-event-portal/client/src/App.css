@@ -403,18 +403,33 @@ input:focus, select:focus { border-color: var(--primary); outline: none; box-sha
 }
 
 /* ========================================= */
-/* PRINT / PDF MODE (NUCLEAR OPTION)         */
+/* PRINT / PDF MODE (FINAL FIX)              */
 /* ========================================= */
 @media print {
-  /* 1. CLEAN THE PAGE (Hide UI) */
-  .toolbar, .stats-grid, .dashboard-header h1, 
-  .mobile-card-content, .btn-secondary, .password-toggle,
-  .data-card.pending /* Hide Pending Rows */
-  {
+  /* 1. HIDE EVERYTHING WE DON'T NEED */
+  .toolbar, 
+  .stats-grid, 
+  .dashboard-header h1, 
+  .btn-secondary, 
+  .password-toggle,
+  .data-card.pending, /* Hide Pending people */
+  .btn-approve,
+  .btn-view,
+  .done-mark {
     display: none !important;
   }
 
-  /* 2. RESET CONTAINERS */
+  /* 2. KILL THE MOBILE CARD (The source of the mess) */
+  /* We use 'div' to be extra specific so the browser obeys */
+  div.mobile-card-content {
+    display: none !important;
+    height: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
+    border: none !important;
+  }
+
+  /* 3. RESET PAGE LAYOUT */
   .dashboard-container, .data-container { 
     width: 100% !important; margin: 0 !important; padding: 0 !important; border: none !important;
   }
@@ -422,7 +437,7 @@ input:focus, select:focus { border-color: var(--primary); outline: none; box-sha
     width: 100% !important; border: none; border-bottom: 1px solid #ddd; margin: 0; padding: 8px 0; break-inside: avoid;
   }
 
-  /* 3. DEFINE THE 5-COLUMN GRID */
+  /* 4. DEFINE THE 5-COLUMN GRID */
   /* Name | Loc | Type | Phone | Status */
   .desktop-header, .data-card {
     display: grid !important;
@@ -431,36 +446,31 @@ input:focus, select:focus { border-color: var(--primary); outline: none; box-sha
     align-items: center; 
   }
 
-  /* 4. FORCE ALL COLUMNS TO SHOW INITIALLY */
+  /* 5. FORCE DESKTOP COLUMNS TO SHOW */
   .desktop-header > div,
-  .data-card > div {
+  .data-card > div.d-col {
     display: flex !important;
     align-items: center;
     color: black !important;
     font-size: 10pt;
   }
 
-  /* 5. NUKE THE UNWANTED COLUMNS BY INDEX */
-  /* Hides "Proof" Header and Data (Column 5) */
+  /* 6. HIDE UNWANTED COLUMNS (Proof & Action) */
+  /* Column 5 is Proof, Column 7 is Action */
   .desktop-header > div:nth-child(5),
-  .data-card > div:nth-child(5) {
-    display: none !important;
-  }
-
-  /* Hides "Action" Header and Data (Column 7 - Removes "Done") */
+  .data-card > div:nth-child(5),
   .desktop-header > div:nth-child(7),
   .data-card > div:nth-child(7) {
     display: none !important;
   }
 
-  /* 6. ALIGN THE STATUS COLUMN */
-  /* Since col #7 is gone, Status (#6) is the last one. Align it left. */
+  /* 7. ALIGN STATUS COLUMN (Column 6 is the last one left) */
   .data-card > div:nth-child(6) {
     justify-content: flex-start !important;
     padding-left: 0 !important;
   }
 
-  /* 7. PRINT TITLE & STYLING */
+  /* 8. HEADER & TITLE STYLING */
   .desktop-header {
     border-bottom: 2px solid black !important;
     font-weight: bold;
