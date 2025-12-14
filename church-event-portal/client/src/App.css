@@ -481,4 +481,93 @@ input:focus, select:focus { border-color: var(--primary); outline: none; box-sha
     margin-bottom: 20px;
     color: black;
   }
+/* ========================================= */
+/* PRINT / PDF MODE (PROFESSIONAL FIX)       */
+/* ========================================= */
+@media print {
+  /* 1. HIDE SITE UI, PENDING MEMBERS & "DONE" MARK */
+  .toolbar, 
+  .stats-grid, 
+  .dashboard-header h1, 
+  .btn-approve, 
+  .btn-view, 
+  .mobile-card-content, 
+  .d-proof,   
+  .d-action,  
+  .btn-secondary,
+  .password-toggle,
+  .data-card.pending,
+  .done-mark, /* NEW: Hides the "Done" checkmark icon/text */
+  .row-index  /* Optional: Hide row numbers if present */
+  {
+    display: none !important;
+  }
+  
+  /* 2. HIDE UNUSED HEADERS (Proof & Action) */
+  .desktop-header > div:nth-child(5), /* Proof Header */
+  .desktop-header > div:nth-child(7)  /* Action Header */
+  {
+    display: none !important;
+  }
+
+  /* 3. FORCE DESKTOP COLUMNS VISIBLE */
+  .desktop-header, .d-col {
+    display: flex !important;
+    align-items: center;
+    color: black !important;
+    font-size: 10pt;
+  }
+
+  /* 4. RESET LAYOUT FOR PAPER */
+  .dashboard-container, .data-container { 
+    padding: 0 !important; 
+    margin: 0 !important; 
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .data-card { 
+    border: none;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 0; 
+    padding: 8px 0;
+    break-inside: avoid;
+    box-shadow: none !important;
+  }
+
+  /* 5. THE 5-COLUMN GRID ALIGNMENT */
+  /* Name | Loc | Type | Phone | Status */
+  .desktop-header, .data-card {
+    display: grid !important;
+    /* Adjusted ratios to push Status to the far right */
+    grid-template-columns: 2.5fr 1.5fr 1.5fr 1.5fr 1fr !important;
+    gap: 10px;
+    align-items: center; /* Vertically center everything */
+  }
+
+  /* 6. SPECIFIC ALIGNMENT FOR STATUS COLUMN */
+  .d-status {
+    justify-content: flex-start !important; /* Aligns text to the left of the column */
+    padding-left: 0 !important;
+  }
+
+  /* 7. HEADER STYLING */
+  .desktop-header {
+    border-bottom: 2px solid black !important;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+  }
+
+  /* 8. PRINT TITLE */
+  .dashboard-header::after {
+    content: "Dominion Retreat 2025 - Confirmed List";
+    font-size: 18pt;
+    font-weight: bold;
+    display: block;
+    text-align: center;
+    margin-bottom: 20px;
+    color: black;
+  }
 }
