@@ -430,17 +430,15 @@ input:focus, select:focus { border-color: var(--primary); outline: none; box-sha
     break-inside: avoid;
   }
 
-  /* 4. THE 5-COLUMN GRID */
+  /* 4. DEFINE GRID COLUMNS (ADJUSTED FOR ALIGNMENT) */
   /* Name | Loc | Type | Phone | Status */
   .desktop-header, .data-card {
     display: grid !important;
-    /* Adjusted ratios: Phone and Status get enough space */
-    grid-template-columns: 2.2fr 1.5fr 1.2fr 1.5fr 1.2fr !important;
-    gap: 10px; 
+    /* Gave 'Type' and 'Phone' slightly more space to breathe */
+    grid-template-columns: 2.5fr 1.2fr 1fr 1.4fr 1fr !important;
+    gap: 15px; 
     align-items: center; 
-    /* Ensures the whole table is centered on the paper with even margins */
-    padding-left: 20px; 
-    padding-right: 20px; 
+    padding: 0 10px;
   }
 
   /* 5. STRICT LEFT ALIGNMENT FOR EVERYTHING */
@@ -456,12 +454,22 @@ input:focus, select:focus { border-color: var(--primary); outline: none; box-sha
     padding-left: 0 !important; /* Removes internal padding that causes shifting */
   }
 
-  /* 6. HIDE UNWANTED COLUMNS (Proof & Action) */
-  .desktop-header > div:nth-child(5),
-  .data-card > div:nth-child(5),
-  .desktop-header > div:nth-child(7),
-  .data-card > div:nth-child(7) {
-    display: none !important;
+  /* 6. FORCE DATA TO ALIGN LEFT (TARGETING INNER CONTENT) */
+  /* This ensures numbers and badges don't "float" to the right */
+  .data-card > div.d-col {
+    display: flex !important;
+    justify-content: flex-start !important; 
+    text-align: left !important;
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+  }
+  
+  /* NEW: Reset margins on badges/spans inside the columns */
+  .data-card > div.d-col > span,
+  .data-card > div.d-col > p {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    text-align: left !important;
   }
 
   /* 7. SPECIFIC STATUS ADJUSTMENT */
