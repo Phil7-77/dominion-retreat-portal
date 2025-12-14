@@ -135,7 +135,7 @@ function AdminPanel() {
           </div>
 
           {filteredAttendees.map((person) => (
-            <div className="data-card" key={person.rowIndex}>
+            <div className={`data-card ${person.status.toLowerCase()}`} key={person.rowIndex}>
               
               {/* DESKTOP ROW - REMOVED ID COLUMN */}
               <div className="d-col d-name"><div className="user-info"><strong>{person.fullName}</strong></div></div>

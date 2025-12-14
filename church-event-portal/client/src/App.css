@@ -403,81 +403,82 @@ input:focus, select:focus { border-color: var(--primary); outline: none; box-sha
 }
 
 /* ========================================= */
-/* PRINT / PDF MODE (FIXED)                  */
+/* PRINT / PDF MODE (FINAL)                  */
 /* ========================================= */
 @media print {
-  /* 1. HIDE SITE UI elements */
+  /* 1. HIDE SITE UI & PENDING MEMBERS */
   .toolbar, 
   .stats-grid, 
   .dashboard-header h1, 
   .btn-approve, 
   .btn-view, 
-  .mobile-card-content, /* Hide Mobile View */
-  .d-proof, 
-  .d-action,
+  .mobile-card-content, 
+  .d-proof,   /* Hide Proof Data */
+  .d-action,  /* Hide Action Data */
   .btn-secondary,
-  .password-toggle {
+  .password-toggle,
+  .data-card.pending { /* CRITICAL: Hides Pending Members */
     display: none !important;
   }
   
-  /* 2. FORCE DESKTOP COLUMNS VISIBLE */
-  /* This overrides the "Mobile Hide" rule */
-  .desktop-header, .d-col {
-    display: flex !important; /* Force them to show up */
-    align-items: center;
-    color: black !important;  /* Ensure text is black */
+  /* 2. HIDE SPECIFIC HEADERS (Proof & Action) */
+  /* This ensures headers align with the 5 data columns */
+  .desktop-header > div:nth-child(5), /* Proof Header */
+  .desktop-header > div:nth-child(7)  /* Action Header */
+  {
+    display: none !important;
   }
 
-  /* 3. RESET LAYOUT FOR PAPER */
-  .dashboard-container { 
+  /* 3. FORCE DESKTOP COLUMNS VISIBLE */
+  .desktop-header, .d-col {
+    display: flex !important;
+    align-items: center;
+    color: black !important;
+    font-size: 10pt; /* Optimal for A4 paper */
+  }
+
+  /* 4. RESET LAYOUT FOR PAPER */
+  .dashboard-container, .data-container { 
     padding: 0 !important; 
     margin: 0 !important; 
-    max-width: 100% !important; 
     width: 100% !important;
-  }
-  
-  .data-container { 
-    padding: 0 !important; 
-    border: none !important; 
+    max-width: 100% !important;
   }
   
   .data-card { 
-    break-inside: avoid; 
-    border: 1px solid #ccc; 
-    margin-bottom: 5px; 
-    page-break-inside: avoid;
+    border: none;
+    border-bottom: 1px solid #ddd; /* Clean line between rows */
+    margin-bottom: 0; 
+    padding: 8px 0;
+    break-inside: avoid;
     box-shadow: none !important;
   }
 
-  /* 4. DEFINE PRINT GRID COLUMNS */
-  /* Name | Loc | Type | Phone | Status */
-  /* We removed ID, Proof, and Action. Remaining: 5 columns */
+  /* 5. THE 5-COLUMN GRID (Name | Loc | Type | Phone | Status) */
   .desktop-header, .data-card {
     display: grid !important;
-    grid-template-columns: 2fr 1.5fr 1fr 1.5fr 1fr !important;
+    /* 5 Columns: Name gets more space */
+    grid-template-columns: 2.5fr 1.5fr 1.5fr 1.5fr 1fr !important;
     gap: 10px;
   }
   
-  /* 5. ADD PRINT TITLE */
+  /* 6. HEADER STYLING */
+  .desktop-header {
+    border-bottom: 2px solid black !important;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+  }
+
+  /* 7. PRINT TITLE */
   .dashboard-header::after {
-    content: "Dominion Retreat 2025 - Registered List";
+    content: "Dominion Retreat 2025 - Confirmed List";
     font-size: 18pt;
     font-weight: bold;
     display: block;
     text-align: center;
     margin-bottom: 20px;
     color: black;
-  }
-
-  /* 6. COLOR CORRECTIONS */
-  body { 
-    background: white !important; 
-    color: black !important; 
-    -webkit-print-color-adjust: exact; /* Try to keep badges colored */
-    print-color-adjust: exact;
-  }
-  
-  .badge-pill, .status-tag {
-    border: 1px solid #000; /* Add border to badges so they are readable even if bw */
   }
 }
