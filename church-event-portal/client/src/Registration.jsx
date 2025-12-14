@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // Update the existing import line
 import axios from 'axios';
 import './App.css';
 import { UserIcon, MapPinIcon, PhoneIcon, CameraIcon, CheckCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
@@ -100,6 +100,32 @@ function Registration() {
     );
   }
 
+  // --- COUNTDOWN LOGIC ---
+  const [timeLeft, setTimeLeft] = useState({});
+
+  useEffect(() => {
+    const targetDate = new Date("December 21, 2025 00:00:00").getTime();
+
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const difference = targetDate - now;
+
+      if (difference > 0) {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+          minutes: Math.floor((difference / 1000 / 60) % 60),
+          seconds: Math.floor((difference / 1000) % 60)
+        });
+      } else {
+        clearInterval(timer);
+        setTimeLeft(null); // Registration Closed
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <div className="container">
        <div className="registration-header">
@@ -109,6 +135,33 @@ function Registration() {
         
       </div>
       
+      {/* COUNTDOWN TIMER */}
+        {timeLeft ? (
+          <div className="countdown-container">
+            <p className="countdown-label">Registration closes in:</p>
+            <div className="timer-box">
+              <div className="time-unit">
+                <span className="time-val">{timeLeft.days || 0}</span>
+                <span className="time-txt">Days</span>
+              </div>
+              <div className="time-unit">
+                <span className="time-val">{timeLeft.hours || 0}</span>
+                <span className="time-txt">Hrs</span>
+              </div>
+              <div className="time-unit">
+                <span className="time-val">{timeLeft.minutes || 0}</span>
+                <span className="time-txt">Mins</span>
+              </div>
+              <div className="time-unit">
+                <span className="time-val">{timeLeft.seconds || 0}</span>
+                <span className="time-txt">Secs</span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="countdown-closed">Registration Closed</div>
+        )}
+
       <div className="card">
         <form onSubmit={handleSubmit}>
           

@@ -349,3 +349,88 @@ input:focus, select:focus { border-color: var(--primary); outline: none; box-sha
   display: block;              /* Allows centering */
   margin: 2rem auto 0 auto;    /* Top margin 2rem, Left/Right Auto (Centers it) */
 }
+
+/* ========================================= */
+/* 8. COUNTDOWN & PRINT STYLES               */
+/* ========================================= */
+
+/* --- COUNTDOWN TIMER --- */
+.countdown-container {
+  text-align: center;
+  margin-bottom: 20px;
+  background: #EFF6FF; /* Light Blue Bg */
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #DBEAFE;
+}
+.countdown-label {
+  font-size: 0.9rem;
+  color: #1E40AF;
+  margin-bottom: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.timer-box {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+.time-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.time-val {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1D4ED8;
+  line-height: 1;
+}
+.time-txt {
+  font-size: 0.7rem;
+  color: #60A5FA;
+  text-transform: uppercase;
+}
+.countdown-closed {
+  background: #FEF2F2;
+  color: #DC2626;
+  padding: 15px;
+  text-align: center;
+  border-radius: 8px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* --- PRINT / PDF MODE --- */
+/* Everything inside this block only happens when printing */
+@media print {
+  /* HIDE these items on paper */
+  .toolbar, .stats-grid, .dashboard-header h1, .btn-approve, .btn-view, .mobile-card-content, .d-proof, .d-action {
+    display: none !important;
+  }
+  
+  /* SHOW these items nicely */
+  .dashboard-container { padding: 0; margin: 0; max-width: 100%; }
+  .data-container { padding: 0; border: none; }
+  .data-card { break-inside: avoid; border: 1px solid #ccc; margin-bottom: 10px; page-break-inside: avoid; }
+  
+  /* Retitle the page for print */
+  .dashboard-header::after {
+    content: "Dominion Retreat 2025 - Registered List";
+    font-size: 20pt;
+    font-weight: bold;
+    display: block;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  /* Reset Grid columns for Print (Since we hid Action/Proof) */
+  /* Name | Loc | Type | Phone | Status */
+  .desktop-header, .data-card {
+    grid-template-columns: 2fr 1.5fr 1fr 1.5fr 1fr !important; 
+  }
+  
+  /* Ensure text is black for printers */
+  body { color: black; background: white; }
+}

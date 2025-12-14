@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import './App.css'; 
-import { ArrowPathIcon, CheckBadgeIcon, EyeIcon, EyeSlashIcon, MagnifyingGlassIcon, UserGroupIcon, ClockIcon } from '@heroicons/react/24/solid';
+import { ArrowPathIcon, PrinterIcon, CheckBadgeIcon, EyeIcon, EyeSlashIcon, MagnifyingGlassIcon, UserGroupIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { DocumentMagnifyingGlassIcon, MapPinIcon, PhoneIcon } from '@heroicons/react/24/outline';
 
 function AdminPanel() {
@@ -118,6 +118,9 @@ function AdminPanel() {
               <input type="text" placeholder="Search..." className="search-input" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
             </div>
             <button onClick={fetchData} className="btn-refresh"><ArrowPathIcon className="icon-sm"/> Refresh List</button>
+            <button onClick={() => window.print()} className="btn-secondary" style={{width:'auto'}}>
+              <PrinterIcon className="icon-sm"/> Print / Save PDF
+            </button>
           </div>
 
           <div className="desktop-header">
