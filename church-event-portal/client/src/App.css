@@ -456,17 +456,15 @@ input:focus, select:focus { border-color: var(--primary); outline: none; box-sha
 
   /* 6. FORCE DATA TO ALIGN LEFT (TARGETING INNER CONTENT) */
   /* This ensures numbers and badges don't "float" to the right */
-  /* FORCE DATA TO ALIGN LEFT (The Alignment Fix) */
   .data-card > div.d-col {
     display: flex !important;
-    justify-content: flex-start !important; /* Snaps text to the left */
+    justify-content: flex-start !important; 
     text-align: left !important;
     padding-left: 0 !important;
     margin-left: 0 !important;
   }
   
-  /* RESET MARGINS ON BADGES (Crucial for Type & Status) */
-  /* This ensures the colored badges don't have invisible margins pushing them right */
+  /* NEW: Reset margins on badges/spans inside the columns */
   .data-card > div.d-col > span,
   .data-card > div.d-col > p {
     margin-left: 0 !important;
