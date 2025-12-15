@@ -121,85 +121,49 @@ app.get('/api/admin/data', async (req, res) => {
     }
 });
 
-// --- ADMIN APPROVE ---
-app.post('/api/admin/approve', async (req, res) => {
-    try {
-        const { rowIndex } = req.body;
-        await sheets.spreadsheets.values.update({
-            spreadsheetId: SPREADSHEET_ID,
-            range: `Sheet1!G${rowIndex}`,
-            valueInputOption: 'USER_ENTERED',
-            resource: { values: [['Confirmed']] }
-        });
-        res.json({ message: 'Status Updated' });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to update status' });
-    }
-});
-
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
-
-// --- NEW: Group Registration Endpoint ---
+// --- NEW: Group Registration Endpoint (Google Sheets Version) ---
 app.post("/api/register-group", async (req, res) => {
-  const { registrants, totalAmount } = req.body; // 'registrants' is an array of people
-
+  console.log("👨‍👩‍👧‍👦 New Group Registration Request received...");
   try {
-    // 1. Save all users to database (but marked as 'Pending' payment)
-    // We can generate a unique 'groupID' to link them if needed, but for now simple insert is fine.
-    const savedUsers = await User.insertMany(registrants.map(p => ({
-      ...p,
-      status: "Pending",
-      paymentReference: "PENDING_" + Date.now() // Temporary ref
-    })));
+    const { registrants } = req.body; // Expecting an array of people
 
-    // 2. Initialize Paystack Transaction for the TOTAL amount
-    const params = JSON.stringify({
-      email: registrants[0].name.replace(/\s/g, "") + "@dominion.com", // Use first person's "email" or generic
-      amount: totalAmount * 100, // Paystack is in pesewas
-      currency: "GHS",
-      callback_url: "https://your-frontend-url.vercel.app/verify", // Update this!
-      metadata: {
-        custom_fields: [
-          {
-            display_name: "Group Size",
-            variable_name: "group_size",
-            value: registrants.length
-          }
-        ]
+    if (!registrants || registrants.length === 0) {
+      return res.status(400).json({ error: "No registrants provided" });
+    }
+
+    // --- 1. Prepare Data for Google Sheets ---
+    // We map the array of people into an array of rows
+    const timestamp = new Date().toLocaleString();
+    
+    // Format: [Timestamp, Name, Phone, Location, Type, Screenshot, Status]
+    const newRows = registrants.map(person => [
+      timestamp,
+      person.fullName,
+      person.phone,
+      person.location,
+      person.ticketType,
+      person.paymentScreenshot, // Everyone shares the same image
+      'Pending'
+    ]);
+
+    console.log(`Saving ${newRows.length} members to sheet...`);
+
+    // --- 2. Append ALL rows at once ---
+    // This is much safer than sending 5 separate requests
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Sheet1!A:G',
+      valueInputOption: 'USER_ENTERED',
+      resource: {
+        values: newRows
       }
     });
 
-    const options = {
-      hostname: 'api.paystack.co',
-      port: 443,
-      path: '/transaction/initialize',
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-        'Content-Type': 'application/json'
-      }
-    };
-
-    const paystackReq = https.request(options, paystackRes => {
-      let data = '';
-      paystackRes.on('data', (chunk) => { data += chunk; });
-      paystackRes.on('end', () => {
-        const result = JSON.parse(data);
-        if (result.status) {
-          res.json({ paymentUrl: result.data.authorization_url });
-        } else {
-          res.status(400).json({ error: "Paystack initialization failed" });
-        }
-      });
-    });
-
-    paystackReq.write(params);
-    paystackReq.end();
+    console.log("Group Successfully Saved!");
+    res.status(200).json({ message: 'Group Registered Successfully' });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Group registration failed" });
+    console.error('GROUP REGISTER ERROR:', error.message);
+    res.status(500).json({ error: error.message });
   }
 });

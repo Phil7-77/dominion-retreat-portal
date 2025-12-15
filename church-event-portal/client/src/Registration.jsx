@@ -62,6 +62,7 @@ function Registration() {
   };
 
   // --- SUBMIT LOGIC ---
+  // --- SUBMIT LOGIC ---
   const handleFinalSubmit = async () => {
     if (registrants.length === 0) {
       alert("Please add at least one person to the list.");
@@ -84,26 +85,25 @@ function Registration() {
       const cloudinaryRes = await axios.post(CLOUDINARY_URL, imageFormData);
       imageUrl = cloudinaryRes.data.secure_url;
 
-      // 2. Register Everyone (Loop through list and send to backend)
-      // We use Promise.all to send them in parallel
-      const registrationPromises = registrants.map(person => {
-        const finalData = {
-          fullName: person.fullName,
-          location: person.location,
-          phone: person.phone,
-          ticketType: person.ticketType,
-          paymentScreenshot: imageUrl // Everyone shares the same receipt
-        };
-        return axios.post('https://dominion-backend-lt5m.onrender.com/api/register', finalData);
-      });
+      // 2. Prepare the list with the image URL attached to everyone
+      const finalGroupList = registrants.map(person => ({
+        fullName: person.fullName,
+        location: person.location,
+        phone: person.phone,
+        ticketType: person.ticketType,
+        paymentScreenshot: imageUrl
+      }));
 
-      await Promise.all(registrationPromises);
+      // 3. Send ONE batch request to the backend
+      // (Ensure this matches your backend URL)
+      await axios.post('https://dominion-backend-lt5m.onrender.com/api/register-group', { 
+        registrants: finalGroupList 
+      });
       
       setStatus('success');
       setRegistrants([]); // Clear list
     } catch (error) {
       console.error(error);
-      // If one fails, we might have an issue, but usually it's a network error or duplicate
       if (error.response && error.response.status === 409) {
         setStatus('duplicate');
       } else {
