@@ -446,12 +446,23 @@ input:focus, select:focus { border-color: var(--primary); outline: none; box-sha
   /* 5. INDIVIDUAL COLUMN STYLING (THE FIX)        */
   /* ============================================= */
 
-  /* --- COL 1: NAME --- */
-  .desktop-header > div:nth-child(1),
+  /* --- COL 1: NAME (Aligned Left, Not Bold) --- */
+  .desktop-header > div:nth-child(1) {
+    justify-content: flex-start !important;
+    text-align: left !important;
+    padding-left: 0 !important;
+    /* Header stays bold (optional, but usually headers remain bold) */
+    font-weight: 800 !important; 
+  }
+
   .data-card > div:nth-child(1) {
     justify-content: flex-start !important;
     text-align: left !important;
-    font-weight: bold; /* Make names stand out */
+    padding-left: 15px !important;
+    margin-left: 0 !important;
+    
+    /* CHANGE HERE: Removes the bold styling */
+    font-weight: normal !important; 
   }
 
   /* --- COL 2: LOCATION --- */
@@ -510,6 +521,7 @@ input:focus, select:focus { border-color: var(--primary); outline: none; box-sha
   /* 6. HEADER STYLING */
   .desktop-header {
     border-bottom: 2px solid black !important;
+    padding-top: 15px !important;
     padding-bottom: 15px !important;
     margin-bottom: 15px;
   }
