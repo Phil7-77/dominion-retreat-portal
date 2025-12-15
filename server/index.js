@@ -5,29 +5,27 @@ require('dotenv').config();
 
 const app = express();
 
-// --- 1. NUCLEAR CORS (Allow Everything) ---
-// This forces the server to accept requests from ANY website
-app.use(cors()); 
-app.options('*', cors()); // Handle preflight requests
-
+// --- 1. CORS CONFIGURATION (Fixing Connection Issues) ---
+app.use(cors({
+    origin: '*', // Allow all frontends
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type']
+}));
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 const SPREADSHEET_ID = process.env.SHEET_ID;
 
-// --- 2. AUTHENTICATION SETUP ---
+// --- 2. AUTHENTICATION ---
 const getAuth = () => {
-    // If running on Render (Cloud)
     if (process.env.GOOGLE_CREDENTIALS) {
-        console.log("🔐 Loading Credentials from Environment Variable...");
+        console.log("🔐 Loading Cloud Credentials...");
         return new google.auth.GoogleAuth({
             credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS),
             scopes: 'https://www.googleapis.com/auth/spreadsheets',
         });
-    } 
-    // If running locally
-    else {
-        console.log("📂 Loading Credentials from secrets.json...");
+    } else {
+        console.log("📂 Loading Local Credentials...");
         return new google.auth.GoogleAuth({
             keyFile: 'secrets.json',
             scopes: 'https://www.googleapis.com/auth/spreadsheets',
@@ -38,63 +36,60 @@ const getAuth = () => {
 const auth = getAuth();
 const sheets = google.sheets({ version: 'v4', auth });
 
-// --- 3. TEST ROUTE ---
+// --- 3. HEALTH CHECK ROUTE ---
 app.get('/', (req, res) => {
-    res.send('Dominion Retreat Server Running');
+    res.status(200).send('Dominion Retreat Server Running - API Active');
 });
 
-// --- REGISTRATION ---
-app.post('/api/register', async (req, res) => {
-    console.log("📩 New Registration Request received...");
+// --- 4. UNIFIED REGISTRATION ENDPOINT (Handles Single & Group) ---
+app.post("/api/register-group", async (req, res) => {
+    console.log("📩 Registration Request Received");
+    
     try {
-        const { fullName, location, phone, ticketType, paymentScreenshot } = req.body;
-        
-        // --- GOOGLE SHEETS CHECK ---
-        console.log("🔎 Connecting to Google Sheets...");
-        
-        // 1. Check for Duplicates
-        let existingNames = [];
-        try {
-            const existingData = await sheets.spreadsheets.values.get({
-                spreadsheetId: SPREADSHEET_ID,
-                range: 'Sheet1!B:B', 
-            });
-            const rows = existingData.data.values || [];
-            existingNames = rows.flat().map(name => name ? name.toLowerCase().trim() : "");
-        } catch (err) {
-            console.error("⚠️ Error reading sheet (Check Sheet ID/Permissions):", err.message);
-            // We do NOT stop here, we assume it's empty or fresh and try to save anyway.
+        const { registrants } = req.body; 
+
+        if (!registrants || registrants.length === 0) {
+            return res.status(400).json({ error: "No data provided" });
         }
 
-        if (existingNames.includes(fullName.toLowerCase().trim())) {
-            console.log("❌ Duplicate Name Detected");
-            return res.status(409).json({ error: 'Member is already registered.' });
-        }
-
-        // 2. Save Data
         const timestamp = new Date().toLocaleString();
-        console.log("📝 Saving to row...");
         
+        // Map data to Google Sheets Row Format
+        // [Timestamp, Name, Phone, Location, Type, Screenshot, Status]
+        const newRows = registrants.map(person => [
+            timestamp,
+            person.fullName,
+            person.phone,
+            person.location,
+            person.ticketType,
+            person.paymentScreenshot,
+            'Pending' // Default Status
+        ]);
+
+        console.log(`📝 Appending ${newRows.length} rows to Sheet...`);
+
+        // Check Duplicates (Optional but Recommended)
+        // Note: For simplicity in a batch request, we often skip duplicate checks 
+        // OR we just append and let Admin sort it out. 
+        // Here, we just Append to ensure speed and no crashing.
+
         await sheets.spreadsheets.values.append({
             spreadsheetId: SPREADSHEET_ID,
             range: 'Sheet1!A:G',
             valueInputOption: 'USER_ENTERED',
-            resource: {
-                values: [[timestamp, fullName, phone, location, ticketType, paymentScreenshot, 'Pending']]
-            }
+            resource: { values: newRows }
         });
 
-        console.log("✅ Successfully Saved!");
-        res.status(200).json({ message: 'Success' });
+        console.log("✅ Success!");
+        res.status(200).json({ message: 'Registration Successful' });
 
     } catch (error) {
-        console.error('❌ CRITICAL ERROR:', error.message);
-        // This log will show up in Render and tell us exactly what is wrong
+        console.error('❌ SERVER ERROR:', error.message);
         res.status(500).json({ error: error.message });
     }
 });
 
-// --- ADMIN DATA ---
+// --- 5. ADMIN DATA FETCH ---
 app.get('/api/admin/data', async (req, res) => {
     try {
         const response = await sheets.spreadsheets.values.get({
@@ -121,49 +116,22 @@ app.get('/api/admin/data', async (req, res) => {
     }
 });
 
-// --- NEW: Group Registration Endpoint (Google Sheets Version) ---
-app.post("/api/register-group", async (req, res) => {
-  console.log("👨‍👩‍👧‍👦 New Group Registration Request received...");
-  try {
-    const { registrants } = req.body; // Expecting an array of people
-
-    if (!registrants || registrants.length === 0) {
-      return res.status(400).json({ error: "No registrants provided" });
+// --- 6. ADMIN APPROVE ---
+app.post('/api/admin/approve', async (req, res) => {
+    try {
+        const { rowIndex } = req.body;
+        await sheets.spreadsheets.values.update({
+            spreadsheetId: SPREADSHEET_ID,
+            range: `Sheet1!G${rowIndex}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: { values: [['Confirmed']] }
+        });
+        res.json({ message: 'Status Updated' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update status' });
     }
+});
 
-    // --- 1. Prepare Data for Google Sheets ---
-    // We map the array of people into an array of rows
-    const timestamp = new Date().toLocaleString();
-    
-    // Format: [Timestamp, Name, Phone, Location, Type, Screenshot, Status]
-    const newRows = registrants.map(person => [
-      timestamp,
-      person.fullName,
-      person.phone,
-      person.location,
-      person.ticketType,
-      person.paymentScreenshot, // Everyone shares the same image
-      'Pending'
-    ]);
-
-    console.log(`Saving ${newRows.length} members to sheet...`);
-
-    // --- 2. Append ALL rows at once ---
-    // This is much safer than sending 5 separate requests
-    await sheets.spreadsheets.values.append({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'Sheet1!A:G',
-      valueInputOption: 'USER_ENTERED',
-      resource: {
-        values: newRows
-      }
-    });
-
-    console.log("Group Successfully Saved!");
-    res.status(200).json({ message: 'Group Registered Successfully' });
-
-  } catch (error) {
-    console.error('GROUP REGISTER ERROR:', error.message);
-    res.status(500).json({ error: error.message });
-  }
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
 });
