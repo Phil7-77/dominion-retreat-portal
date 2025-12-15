@@ -108,6 +108,78 @@ input:focus, select:focus { border-color: var(--primary); outline: none; box-sha
 .success-icon { width: 90px; height: 90px; color: #10B981; margin: 0 auto 1.5rem; display: block; }
 .subtitle { color: #6B7280; font-size: 1rem; margin-bottom: 2rem; line-height: 1.5; }
 
+/* Group Registration Styles */
+.group-list {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+}
+
+.group-list h3 {
+  margin-top: 0;
+  font-size: 1rem;
+  color: #333;
+}
+
+.group-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.group-list li {
+  display: flex;
+  justify-content: space-between;
+  background: white;
+  padding: 8px 12px;
+  margin-bottom: 5px;
+  border-radius: 4px;
+  border: 1px solid #eee;
+}
+
+.btn-remove {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Action Buttons */
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  flex: 1;
+  font-weight: bold;
+}
+
 /* ========================================= */
 /* 3. ADMIN DASHBOARD STYLES                 */
 /* ========================================= */

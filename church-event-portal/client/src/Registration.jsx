@@ -1,61 +1,109 @@
-import { useState, useEffect } from 'react'; // Update the existing import line
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
-import { UserIcon, MapPinIcon, PhoneIcon, CameraIcon, CheckCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { UserIcon, MapPinIcon, PhoneIcon, CameraIcon, CheckCircleIcon, ExclamationTriangleIcon, TrashIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 
 const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dcih4tkwz/image/upload"; 
 const UPLOAD_PRESET = "end_of_year_retreat";
 
 function Registration() {
-  const [formData, setFormData] = useState({
+  // --- STATE MANAGEMENT ---
+  // List of confirmed people to be registered
+  const [registrants, setRegistrants] = useState([]);
+
+  // Current person being typed in the form
+  const [currentPerson, setCurrentPerson] = useState({
     fullName: '',
     location: '',
     phone: '',
-    ticketType: 'Worker',
-    paymentScreenshot: null 
+    ticketType: 'Worker'
   });
+
+  // Common data for the whole group
+  const [paymentScreenshot, setPaymentScreenshot] = useState(null);
   
   const [status, setStatus] = useState('idle');
 
+  // --- HANDLERS ---
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setCurrentPerson({ ...currentPerson, [e.target.name]: e.target.value });
   };
 
   const handleFileChange = (e) => {
-    setFormData({ ...formData, paymentScreenshot: e.target.files[0] });
+    setPaymentScreenshot(e.target.files[0]);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Add the current person to the list
+  const addPersonToList = () => {
+    if (!currentPerson.fullName || !currentPerson.phone || !currentPerson.location) {
+      alert("Please fill in all fields (Name, Phone, Location) before adding.");
+      return;
+    }
+    // Add to list
+    setRegistrants([...registrants, currentPerson]);
+    // Reset form for the next person (keep location/ticketType as they might be same)
+    setCurrentPerson({ ...currentPerson, fullName: '', phone: '' }); 
+  };
+
+  // Remove a person from the list
+  const removePerson = (index) => {
+    const updated = registrants.filter((_, i) => i !== index);
+    setRegistrants(updated);
+  };
+
+  // Calculate Total Price
+  const calculateTotal = () => {
+    // Sum of existing list + current input (if partially filled, we don't count it yet unless added)
+    // Actually, usually we only count what is IN the list.
+    // Let's count ONLY people in the 'registrants' list for the final total.
+    return registrants.reduce((total, person) => {
+      return total + (person.ticketType === 'Worker' ? 150 : 100);
+    }, 0);
+  };
+
+  // --- SUBMIT LOGIC ---
+  const handleFinalSubmit = async () => {
+    if (registrants.length === 0) {
+      alert("Please add at least one person to the list.");
+      return;
+    }
+    if (!paymentScreenshot) {
+      alert("Please upload the payment screenshot for the group.");
+      return;
+    }
+
     setStatus('submitting');
 
     try {
+      // 1. Upload Image ONCE
       let imageUrl = "";
+      const imageFormData = new FormData();
+      imageFormData.append('file', paymentScreenshot);
+      imageFormData.append('upload_preset', UPLOAD_PRESET);
 
-      if (formData.paymentScreenshot) {
-        const imageFormData = new FormData();
-        imageFormData.append('file', formData.paymentScreenshot);
-        imageFormData.append('upload_preset', UPLOAD_PRESET);
+      const cloudinaryRes = await axios.post(CLOUDINARY_URL, imageFormData);
+      imageUrl = cloudinaryRes.data.secure_url;
 
-        const cloudinaryRes = await axios.post(CLOUDINARY_URL, imageFormData);
-        imageUrl = cloudinaryRes.data.secure_url;
-      }
+      // 2. Register Everyone (Loop through list and send to backend)
+      // We use Promise.all to send them in parallel
+      const registrationPromises = registrants.map(person => {
+        const finalData = {
+          fullName: person.fullName,
+          location: person.location,
+          phone: person.phone,
+          ticketType: person.ticketType,
+          paymentScreenshot: imageUrl // Everyone shares the same receipt
+        };
+        return axios.post('https://dominion-backend-lt5m.onrender.com/api/register', finalData);
+      });
 
-      const finalData = {
-        fullName: formData.fullName,
-        location: formData.location,
-        phone: formData.phone,
-        ticketType: formData.ticketType,
-        paymentScreenshot: imageUrl
-      };
-
-      // Ensure this matches your Vercel/Render URL
-      // Make sure it looks exactly like this:
-      await axios.post('https://dominion-backend-lt5m.onrender.com/api/register', finalData);;
+      await Promise.all(registrationPromises);
       
       setStatus('success');
+      setRegistrants([]); // Clear list
     } catch (error) {
       console.error(error);
+      // If one fails, we might have an issue, but usually it's a network error or duplicate
       if (error.response && error.response.status === 409) {
         setStatus('duplicate');
       } else {
@@ -64,52 +112,13 @@ function Registration() {
     }
   };
 
-  const price = formData.ticketType === 'Worker' ? '150.00' : '100.00';
-
- if (status === 'success') {
-    return (
-      <div className="container">
-        <div className="card">
-          <div className="success-message">
-            <CheckCircleIcon className="success-icon" />
-            <h1>Registration Complete!</h1>
-            
-            {/* UPDATED: WhatsApp Link Button */}
-            <p style={{marginBottom: '1.5rem', color: '#6B7280'}}>
-              Thank you for registering. Please join the platform for updates.
-            </p>
-            
-            <a 
-              href="https://chat.whatsapp.com/FAz7Wb4gmNT5m0DjaIrGsi?mode=hqrt1" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="btn-whatsapp"
-            >
-              Click to join our WhatsApp Platform
-            </a>
-
-            <div style={{marginTop: '2rem', borderTop: '1px solid #E5E7EB', paddingTop: '1.5rem'}}>
-               <button className="btn-secondary" onClick={() => window.location.reload()}>
-                 Register Another Person
-               </button>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // --- COUNTDOWN LOGIC ---
   const [timeLeft, setTimeLeft] = useState({});
-
   useEffect(() => {
     const targetDate = new Date("December 21, 2025 00:00:00").getTime();
-
     const timer = setInterval(() => {
       const now = new Date().getTime();
       const difference = targetDate - now;
-
       if (difference > 0) {
         setTimeLeft({
           days: Math.floor(difference / (1000 * 60 * 60 * 24)),
@@ -119,43 +128,54 @@ function Registration() {
         });
       } else {
         clearInterval(timer);
-        setTimeLeft(null); // Registration Closed
+        setTimeLeft(null);
       }
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
+
+  // --- SUCCESS VIEW ---
+  if (status === 'success') {
+    return (
+      <div className="container">
+        <div className="card">
+          <div className="success-message">
+            <CheckCircleIcon className="success-icon" />
+            <h1>Registration Complete!</h1>
+            <p style={{marginBottom: '1.5rem', color: '#6B7280'}}>
+              All members have been successfully registered.
+            </p>
+            <a href="https://chat.whatsapp.com/FAz7Wb4gmNT5m0DjaIrGsi?mode=hqrt1" target="_blank" rel="noopener noreferrer" className="btn-whatsapp">
+              Click to join our WhatsApp Platform
+            </a>
+            <div style={{marginTop: '2rem', borderTop: '1px solid #E5E7EB', paddingTop: '1.5rem'}}>
+               <button className="btn-secondary" onClick={() => window.location.reload()}>
+                 Register More People
+               </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container">
        <div className="registration-header">
         <img src="https://imgur.com/qyUvkiS.png" alt="Church Logo"/>
         <h1>End of Year Retreat 2025</h1>
-        <p>Register to secure your seat</p>
-        
+        <p>Register yourself or your group</p>
       </div>
       
-      {/* COUNTDOWN TIMER */}
+      {/* COUNTDOWN */}
         {timeLeft ? (
           <div className="countdown-container">
             <p className="countdown-label">Registration closes in:</p>
             <div className="timer-box">
-              <div className="time-unit">
-                <span className="time-val">{timeLeft.days || 0}</span>
-                <span className="time-txt">Days</span>
-              </div>
-              <div className="time-unit">
-                <span className="time-val">{timeLeft.hours || 0}</span>
-                <span className="time-txt">Hrs</span>
-              </div>
-              <div className="time-unit">
-                <span className="time-val">{timeLeft.minutes || 0}</span>
-                <span className="time-txt">Mins</span>
-              </div>
-              <div className="time-unit">
-                <span className="time-val">{timeLeft.seconds || 0}</span>
-                <span className="time-txt">Secs</span>
-              </div>
+              <div className="time-unit"><span className="time-val">{timeLeft.days || 0}</span><span className="time-txt">Days</span></div>
+              <div className="time-unit"><span className="time-val">{timeLeft.hours || 0}</span><span className="time-txt">Hrs</span></div>
+              <div className="time-unit"><span className="time-val">{timeLeft.minutes || 0}</span><span className="time-txt">Mins</span></div>
+              <div className="time-unit"><span className="time-val">{timeLeft.seconds || 0}</span><span className="time-txt">Secs</span></div>
             </div>
           </div>
         ) : (
@@ -163,84 +183,115 @@ function Registration() {
         )}
 
       <div className="card">
-        <form onSubmit={handleSubmit}>
-          
-          {/* --- NEW: 2-COLUMN GRID WRAPPER --- */}
-          <div className="form-grid">
-            
-            {/* Row 1, Col 1 */}
+        {/* --- SECTION 1: ADDED MEMBERS LIST --- */}
+        {registrants.length > 0 && (
+          <div style={{ marginBottom: '20px', background: '#F3F4F6', padding: '15px', borderRadius: '8px' }}>
+             <h3 style={{fontSize: '1rem', margin: '0 0 10px 0', color: '#374151'}}>Group Members ({registrants.length})</h3>
+             {registrants.map((person, idx) => (
+               <div key={idx} style={{display:'flex', justifyContent:'space-between', alignItems:'center', background:'white', padding:'8px', marginBottom:'5px', borderRadius:'6px', border:'1px solid #E5E7EB'}}>
+                  <div>
+                    <span style={{fontWeight:'bold', display:'block'}}>{person.fullName}</span>
+                    <span style={{fontSize:'0.8rem', color:'#6B7280'}}>{person.ticketType} - {person.location}</span>
+                  </div>
+                  <button onClick={() => removePerson(idx)} style={{background:'none', border:'none', cursor:'pointer', color:'#EF4444'}}>
+                    <TrashIcon style={{width:'18px'}}/>
+                  </button>
+               </div>
+             ))}
+             <div style={{textAlign:'right', marginTop:'10px', fontWeight:'bold', color: '#111827'}}>
+                Total to Pay: GH₵ {calculateTotal()}.00
+             </div>
+          </div>
+        )}
+
+        {/* --- SECTION 2: INPUT FORM --- */}
+        <div className="form-grid">
+            {/* Row 1 */}
             <div className="form-group">
               <label>Full Name</label>
               <div className="input-wrapper">
                 <UserIcon className="icon" />
-                <input type="text" name="fullName" required value={formData.fullName} onChange={handleChange} placeholder="John Doe"/>
+                <input type="text" name="fullName" value={currentPerson.fullName} onChange={handleChange} placeholder="John Doe"/>
               </div>
             </div>
-
-            {/* Row 1, Col 2 */}
             <div className="form-group">
               <label>Phone Number</label>
               <div className="input-wrapper">
                 <PhoneIcon className="icon" />
-                <input type="tel" name="phone" required value={formData.phone} onChange={handleChange} placeholder="020 123 4567"/>
+                <input type="tel" name="phone" value={currentPerson.phone} onChange={handleChange} placeholder="020 123 4567"/>
               </div>
             </div>
-
-            {/* Row 2, Col 1 */}
+            {/* Row 2 */}
             <div className="form-group">
               <label>Location / Branch</label>
               <div className="input-wrapper">
                 <MapPinIcon className="icon" />
-                <input type="text" name="location" required value={formData.location} onChange={handleChange} placeholder="Kumasi"/>
+                <input type="text" name="location" value={currentPerson.location} onChange={handleChange} placeholder="Kumasi"/>
               </div>
             </div>
-
-            {/* Row 2, Col 2 */}
              <div className="form-group">
               <label>Registering As</label>
               <div className="input-wrapper">
-                <select name="ticketType" value={formData.ticketType} onChange={handleChange}>
+                <select name="ticketType" value={currentPerson.ticketType} onChange={handleChange}>
                   <option value="Worker">Worker (GH₵ 150.00)</option>
                   <option value="Student">Student (GH₵ 100.00)</option>
                 </select>
               </div>
             </div>
+        </div>
 
-          </div>
-          {/* --- END GRID WRAPPER --- */}
+        {/* --- ADD BUTTON --- */}
+        <button 
+          type="button" 
+          onClick={addPersonToList} 
+          className="btn-secondary"
+          style={{width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '20px'}}
+        >
+          <UserPlusIcon style={{width: '20px'}}/> 
+          Add Person to List
+        </button>
 
-          <div className="payment-info">
-            <p style={{margin: '0 0 0.5rem 0', fontSize: '1.1rem'}}><strong>Amount Due: GH₵ {price}</strong></p>
-            <p style={{margin: 0, fontSize: '0.9rem'}}>Send to MoMo: <strong>055-070-3541</strong><br/>Name: <strong>Daniel Obeng Tuffour</strong></p>
-          </div>
+        <hr style={{border: 'none', borderTop: '1px dashed #E5E7EB', margin: '20px 0'}} />
 
-          <div className="form-group">
-            <label>Upload Payment Screenshot</label>
-            <div className="input-wrapper" style={{border: '1px dashed #E5E7EB', padding: '10px', borderRadius: '8px'}}>
-              <CameraIcon className="icon" style={{top: '18px'}} />
-              <input type="file" accept="image/*" required onChange={handleFileChange} style={{border: 'none', paddingLeft: '40px'}} />
-            </div>
-            {status === 'submitting' && <small style={{color: 'blue'}}>Uploading image... please wait.</small>}
-          </div>
+        {/* --- SECTION 3: PAYMENT & SUBMIT --- */}
+        <div className="payment-info">
+           <p style={{margin: '0 0 0.5rem 0', fontSize: '1.1rem'}}>
+             <strong>Total Due: GH₵ {calculateTotal() > 0 ? calculateTotal() + '.00' : '0.00'}</strong>
+           </p>
+           <p style={{margin: 0, fontSize: '0.9rem'}}>Send to MoMo: <strong>055-070-3541</strong><br/>Name: <strong>Daniel Obeng Tuffour</strong></p>
+        </div>
 
-          {status === 'duplicate' && (
-            <div style={{ background: '#FEF2F2', color: '#B91C1C', padding: '10px', borderRadius: '8px', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
-              <ExclamationTriangleIcon style={{width:'20px'}}/>
-              <span>Member is already registered.</span>
-            </div>
-          )}
+        <div className="form-group">
+           <label>Upload Group Payment Screenshot</label>
+           <div className="input-wrapper" style={{border: '1px dashed #E5E7EB', padding: '10px', borderRadius: '8px'}}>
+             <CameraIcon className="icon" style={{top: '18px'}} />
+             <input type="file" accept="image/*" onChange={handleFileChange} style={{border: 'none', paddingLeft: '40px'}} />
+           </div>
+           {status === 'submitting' && <small style={{color: 'blue'}}>Uploading and registering group... please wait.</small>}
+        </div>
 
-          {status === 'error' && (
-             <div style={{ background: '#FEF2F2', color: '#B91C1C', padding: '10px', borderRadius: '8px', marginBottom: '1rem', textAlign: 'center' }}>
-              Registration failed. Please check your connection.
-            </div>
-          )}
+        {status === 'duplicate' && (
+           <div style={{ background: '#FEF2F2', color: '#B91C1C', padding: '10px', borderRadius: '8px', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
+             <ExclamationTriangleIcon style={{width:'20px'}}/>
+             <span>One or more members are already registered.</span>
+           </div>
+        )}
+        {status === 'error' && (
+           <div style={{ background: '#FEF2F2', color: '#B91C1C', padding: '10px', borderRadius: '8px', marginBottom: '1rem', textAlign: 'center' }}>
+             Registration failed. Please check your connection.
+           </div>
+        )}
 
-          <button type="submit" className="btn-submit" disabled={status === 'submitting'}>
-            {status === 'submitting' ? 'Processing...' : 'Complete Registration'}
-          </button>
+        <button 
+          type="button" 
+          className="btn-submit" 
+          onClick={handleFinalSubmit}
+          disabled={status === 'submitting' || registrants.length === 0}
+          style={{opacity: registrants.length === 0 ? 0.5 : 1}}
+        >
+          {status === 'submitting' ? 'Processing...' : `Complete Registration (${registrants.length})`}
+        </button>
 
-        </form>
       </div>
       <p style={{textAlign: 'center', marginTop: '2rem', color: '#94A3B8', fontSize: '0.8rem'}}>&copy; O.T Daniel Ministry</p>
     </div>

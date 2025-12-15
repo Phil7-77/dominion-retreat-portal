@@ -140,3 +140,66 @@ app.post('/api/admin/approve', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+// --- NEW: Group Registration Endpoint ---
+app.post("/api/register-group", async (req, res) => {
+  const { registrants, totalAmount } = req.body; // 'registrants' is an array of people
+
+  try {
+    // 1. Save all users to database (but marked as 'Pending' payment)
+    // We can generate a unique 'groupID' to link them if needed, but for now simple insert is fine.
+    const savedUsers = await User.insertMany(registrants.map(p => ({
+      ...p,
+      status: "Pending",
+      paymentReference: "PENDING_" + Date.now() // Temporary ref
+    })));
+
+    // 2. Initialize Paystack Transaction for the TOTAL amount
+    const params = JSON.stringify({
+      email: registrants[0].name.replace(/\s/g, "") + "@dominion.com", // Use first person's "email" or generic
+      amount: totalAmount * 100, // Paystack is in pesewas
+      currency: "GHS",
+      callback_url: "https://your-frontend-url.vercel.app/verify", // Update this!
+      metadata: {
+        custom_fields: [
+          {
+            display_name: "Group Size",
+            variable_name: "group_size",
+            value: registrants.length
+          }
+        ]
+      }
+    });
+
+    const options = {
+      hostname: 'api.paystack.co',
+      port: 443,
+      path: '/transaction/initialize',
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    };
+
+    const paystackReq = https.request(options, paystackRes => {
+      let data = '';
+      paystackRes.on('data', (chunk) => { data += chunk; });
+      paystackRes.on('end', () => {
+        const result = JSON.parse(data);
+        if (result.status) {
+          res.json({ paymentUrl: result.data.authorization_url });
+        } else {
+          res.status(400).json({ error: "Paystack initialization failed" });
+        }
+      });
+    });
+
+    paystackReq.write(params);
+    paystackReq.end();
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Group registration failed" });
+  }
+});
