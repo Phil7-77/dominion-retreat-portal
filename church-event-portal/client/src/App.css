@@ -403,91 +403,124 @@ input:focus, select:focus { border-color: var(--primary); outline: none; box-sha
 }
 
 /* ========================================= */
-/* PRINT / PDF MODE (RULER-STRAIGHT ALIGNMENT) */
+/* PRINT / PDF MODE (COLUMN-BY-COLUMN CONTROL) */
 /* ========================================= */
 @media print {
-  /* 1. HIDE UNNECESSARY ELEMENTS */
+  /* 1. HIDE UI ELEMENTS */
   .toolbar, .stats-grid, .dashboard-header h1, 
-  .btn-secondary, .password-toggle,
-  .data-card.pending, 
-  .btn-approve, .btn-view, .done-mark,
-  div.mobile-card-content {
+  .btn-secondary, .password-toggle, .data-card.pending, 
+  .btn-approve, .btn-view, .done-mark, div.mobile-card-content {
     display: none !important;
   }
 
-  /* 2. RESET PAGE & CONTAINERS */
+  /* 2. LAYOUT RESETS */
   .dashboard-container, .data-container { 
     width: 100% !important; margin: 0 !important; padding: 0 !important; border: none !important;
   }
-
-  /* 3. ROW STYLING (Clean Lines) */
   .data-card { 
-    width: 100% !important; 
-    border: none; 
-    border-bottom: 1px solid #e5e7eb; 
-    margin: 0; 
-    padding: 10px 0; 
+    width: 100% !important; border: none; border-bottom: 1px solid #e5e7eb; 
+    margin: 0; padding: 15px 0 !important; /* Breathing space */
     break-inside: avoid;
   }
 
-  /* 4. THE 5-COLUMN GRID */
+  /* 3. GRID DEFINITION */
   /* Name | Loc | Type | Phone | Status */
   .desktop-header, .data-card {
     display: grid !important;
-    /* Adjusted ratios: Phone and Status get enough space */
-    grid-template-columns: 2.2fr 1.5fr 1.2fr 0.5fr 0.5fr !important;
-    gap: 10px; 
+    grid-template-columns: 2.5fr 1.2fr 1fr 1.4fr 1fr !important;
+    gap: 15px; 
     align-items: center; 
-    /* Ensures the whole table is centered on the paper with even margins */
-    padding-left: 20px; 
-    padding-right: 20px; 
+    padding: 0 10px;
   }
 
-  /* 5. STRICT LEFT ALIGNMENT FOR EVERYTHING */
-  /* This is the secret. Both Header AND Data get forced Left. */
+  /* 4. BASE COLUMN STYLE (The Default) */
   .desktop-header > div,
   .data-card > div.d-col {
     display: flex !important;
-    align-items: center;
-    justify-content: flex-start !important; /* Snaps everything to the left */
-    text-align: left !important;
-    color: black !important;
     font-size: 10pt;
-    padding-left: 0 !important; /* Removes internal padding that causes shifting */
+    color: black !important;
+    align-items: center;
   }
 
-  /* 6. HIDE UNWANTED COLUMNS (Proof & Action) */
+  /* ============================================= */
+  /* 5. INDIVIDUAL COLUMN STYLING (THE FIX)        */
+  /* ============================================= */
+
+  /* --- COL 1: NAME --- */
+  .desktop-header > div:nth-child(1),
+  .data-card > div:nth-child(1) {
+    justify-content: flex-start !important;
+    text-align: left !important;
+    font-weight: bold; /* Make names stand out */
+  }
+
+  /* --- COL 2: LOCATION --- */
+  .desktop-header > div:nth-child(2),
+  .data-card > div:nth-child(2) {
+    justify-content: flex-start !important;
+    text-align: left !important;
+  }
+
+  /* --- COL 3: TYPE (Worker/Student) --- */
+  .desktop-header > div:nth-child(3),
+  .data-card > div:nth-child(3) {
+    justify-content: flex-start !important;
+    text-align: left !important;
+  }
+  /* Fix badge margins specifically for Type */
+  .data-card > div:nth-child(3) span {
+    margin: 0 !important; padding: 0 !important;
+  }
+
+  /* --- COL 4: PHONE --- */
+  .desktop-header > div:nth-child(4),
+  .data-card > div:nth-child(4) {
+    justify-content: flex-start !important;
+    text-align: left !important;
+  }
+
+  /* --- COL 5: PROOF (HIDDEN) --- */
   .desktop-header > div:nth-child(5),
-  .data-card > div:nth-child(5),
+  .data-card > div:nth-child(5) {
+    display: none !important;
+  }
+
+  /* --- COL 6: STATUS (Confirmed) --- */
+  .desktop-header > div:nth-child(6) {
+    /* Header alignment */
+    justify-content: flex-start !important; 
+  }
+  .data-card > div:nth-child(6) {
+    /* Data alignment */
+    justify-content: flex-start !important;
+    padding-left: 0 !important;
+  }
+  /* Fix badge margins specifically for Status */
+  .data-card > div:nth-child(6) span,
+  .data-card > div:nth-child(6) p {
+    margin: 0 !important; padding: 0 !important;
+  }
+
+  /* --- COL 7: ACTION (HIDDEN) --- */
   .desktop-header > div:nth-child(7),
   .data-card > div:nth-child(7) {
     display: none !important;
   }
 
-  /* 7. SPECIFIC STATUS ADJUSTMENT */
-  /* Ensure the "Confirmed" text aligns left like the others */
-  .data-card > div:nth-child(6) {
-    justify-content: flex-start !important;
-  }
-
-  /* 8. HEADER STYLING */
+  /* 6. HEADER STYLING */
   .desktop-header {
     border-bottom: 2px solid black !important;
-    padding-bottom: 8px;
-    margin-bottom: 10px;
+    padding-bottom: 15px !important;
+    margin-bottom: 15px;
   }
   .desktop-header > div {
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: 9pt; /* Slightly smaller header for contrast */
-    letter-spacing: 0.5px;
+    font-weight: 800; text-transform: uppercase; font-size: 9pt;
   }
 
-  /* 9. PRINT TITLE */
+  /* 7. TITLE */
   .dashboard-header::after {
     content: "Dominion Retreat 2025 - Confirmed List";
-    font-size: 20pt;
-    font-weight: bold;
+    font-size: 20pt; font-weight: bold;
     display: block; text-align: center; margin-bottom: 30px; color: black;
   }
 }
