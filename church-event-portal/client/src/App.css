@@ -103,7 +103,7 @@ input, select {
 }
 input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
 
-.payment-info { background: #EFF6FF; border: 1px dashed #BFDBFE; padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem; font-size: 1rem; color: #1E3A8A; }
+.payment-info { background: #EFF6FF; border: 1px dashed #BFDBFE; padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem; font-size: 1rem; color: #1E3A8A; text-align: center}
 .success-message { text-align: center; padding: 2rem 0; }
 .success-icon { width: 90px; height: 90px; color: #10B981; margin: 0 auto 1.5rem; display: block; }
 .subtitle { color: #6B7280; font-size: 1rem; margin-bottom: 2rem; line-height: 1.5; }
