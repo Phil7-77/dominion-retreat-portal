@@ -118,7 +118,7 @@ function Registration() {
   // --- COUNTDOWN (Keep existing logic) ---
   const [timeLeft, setTimeLeft] = useState({});
   useEffect(() => {
-    const targetDate = new Date("December 21, 2025 00:00:00").getTime();
+    const targetDate = new Date("December 23, 2025 00:00:00").getTime();
     const timer = setInterval(() => {
       const now = new Date().getTime();
       const difference = targetDate - now;
