@@ -55,49 +55,50 @@ function Registration() {
   };
 
   // --- SMART SUBMIT LOGIC (The Fix) ---
+  // --- SMART SUBMIT LOGIC (Pay Later Friendly) ---
   const handleFinalSubmit = async (e) => {
-    e.preventDefault(); // Stop page refresh
+    e.preventDefault();
 
-    // 1. Build the Final List (List + Current Form Input)
+    // 1. Build the Final List
     let finalPayload = [...registrants];
 
-    // If the user typed someone in the form but didn't click "Add", include them!
+    // Include the person currently in the form if they typed something
     if (currentPerson.fullName && currentPerson.phone && currentPerson.location) {
       finalPayload.push(currentPerson);
     }
 
-    // 2. Validation
+    // 2. Validation (Removed the strict payment check)
     if (finalPayload.length === 0) {
       alert("Please enter your details to register.");
       return;
     }
-    if (!paymentScreenshot) {
-      alert("Please upload the payment screenshot.");
-      return;
-    }
+    // We NO LONGER check for !paymentScreenshot here.
 
     setStatus('submitting');
 
     try {
-      // 3. Upload Image
-      const imageFormData = new FormData();
-      imageFormData.append('file', paymentScreenshot);
-      imageFormData.append('upload_preset', UPLOAD_PRESET);
+      // 3. Handle Image Upload (Only if file exists)
+      let imageUrl = "Pay Later"; // Default value for database
 
-      const cloudinaryRes = await axios.post(CLOUDINARY_URL, imageFormData);
-      const imageUrl = cloudinaryRes.data.secure_url;
+      if (paymentScreenshot) {
+        const imageFormData = new FormData();
+        imageFormData.append('file', paymentScreenshot);
+        imageFormData.append('upload_preset', UPLOAD_PRESET);
 
-      // 4. Attach Image to Everyone
+        const cloudinaryRes = await axios.post(CLOUDINARY_URL, imageFormData);
+        imageUrl = cloudinaryRes.data.secure_url;
+      }
+
+      // 4. Attach Data to Everyone
       const peopleToRegister = finalPayload.map(person => ({
         fullName: person.fullName,
         location: person.location,
         phone: person.phone,
         ticketType: person.ticketType,
-        paymentScreenshot: imageUrl
+        paymentScreenshot: imageUrl // Will be URL or "Pay Later"
       }));
 
-      // 5. Send ONE batch request
-      // We use the new endpoint for BOTH single and group users
+      // 5. Send Batch Request
       await axios.post(`${BACKEND_URL}/api/register-group`, { 
         registrants: peopleToRegister 
       });
@@ -105,6 +106,8 @@ function Registration() {
       setStatus('success');
       setRegistrants([]);
       setCurrentPerson({ fullName: '', location: '', phone: '', ticketType: 'Worker' });
+      setPaymentScreenshot(null); // Reset file input
+
     } catch (error) {
       console.error("Registration Error:", error);
       if (error.response && error.response.status === 409) {
@@ -227,13 +230,28 @@ function Registration() {
            <p style={{margin: 0, fontSize: '0.9rem'}}>Send to MoMo: <strong>055-070-3541</strong><br/>Name: <strong>Daniel Obeng Tuffour</strong></p>
         </div>
 
-        <div className="form-group">
-           <label>Upload Payment Screenshot</label>
+       <div className="form-group">
+           <label>
+             Payment Screenshot <span style={{fontSize: '0.8rem', color: '#6B7280', fontWeight: 'normal'}}>(Optional)</span>
+           </label>
            <div className="input-wrapper" style={{border: '1px dashed #E5E7EB', padding: '10px', borderRadius: '8px'}}>
              <CameraIcon className="icon" style={{top: '18px'}} />
-             <input type="file" accept="image/*" onChange={handleFileChange} style={{border: 'none', paddingLeft: '40px'}} />
+             <input 
+               type="file" 
+               accept="image/*" 
+               onChange={handleFileChange} 
+               style={{border: 'none', paddingLeft: '40px'}} 
+             />
            </div>
-           {status === 'submitting' && <small style={{color: 'blue'}}>Processing registration... please wait.</small>}
+           
+           {/* Add a professional note explaining the option */}
+           {!paymentScreenshot && (
+             <small style={{display: 'block', marginTop: '5px', color: '#6B7280'}}>
+               * You can skip this if you want to pay at the venue.
+             </small>
+           )}
+
+           {status === 'submitting' && <small style={{color: 'blue'}}>Processing registration...</small>}
         </div>
 
         {/* ERROR MESSAGES */}
