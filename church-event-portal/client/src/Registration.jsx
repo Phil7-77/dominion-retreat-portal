@@ -247,7 +247,7 @@ function Registration() {
            {/* Add a professional note explaining the option */}
            {!paymentScreenshot && (
              <small style={{display: 'block', marginTop: '5px', color: '#6B7280'}}>
-               * You can skip this if you want to pay at the venue.
+               * You can skip this if you will pay later.
              </small>
            )}
 
